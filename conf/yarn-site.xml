@@ -1,0 +1,371 @@
+<?xml version="1.0"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<configuration>
+
+<!-- Site specific YARN configuration properties -->
+
+<!-- Resource Manager Configs -->
+<property>
+  <name>yarn.resourcemanager.connect.retry-interval.ms</name>
+  <value>2001</value>
+</property>
+
+<!-- ha config -->
+<property>
+  <name>yarn.resourcemanager.ha.enabled</name>
+  <value>true</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.ha.automatic-failover.enabled</name>
+  <value>true</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.ha.automatic-failover.embedded</name>
+  <value>true</value>
+</property>
+
+<!-- resourcemanager config -->
+<property>
+  <name>yarn.resourcemanager.cluster-id</name>
+  <value>yarn-ochadoop</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.ha.rm-ids</name>
+  <value>rm1,rm2</value>
+</property>
+
+<property>
+  <description>Id of the current ResourceManager. Must be set explicitly on each ResourceManager to the appropriate value.</description>
+  <name>yarn.resourcemanager.ha.id</name>
+
+  <value>rm1</value>
+    <!-- rm1上配置为rm1, rm2上配置rm2 -->
+</property>
+
+<!-- RM1 configs -->
+<property>
+
+
+  <name>yarn.resourcemanager.address.rm1</name>
+  <value>ochadoop1:8032</value>
+
+</property>
+
+<property>
+
+
+  <name>yarn.resourcemanager.scheduler.address.rm1</name>
+  <value>ochadoop1:8030</value>
+</property>
+
+<property>
+
+
+  <name>yarn.resourcemanager.webapp.address.rm1</name>
+  <value>ochadoop1:8088</value>
+</property>
+
+<property>
+
+  <name>yarn.resourcemanager.resource-tracker.address.rm1</name>
+  <value>ochadoop1:8031</value>
+</property>
+
+<property>
+
+
+  <name>yarn.resourcemanager.admin.address.rm1</name>
+  <value>ochadoop1:8033</value>
+</property>
+
+<property>
+
+  <name>yarn.resourcemanager.ha.admin.address.rm1</name>
+  <value>ochadoop1:23142</value>
+</property>
+
+<!-- RM2 configs -->
+<property>
+
+  <name>yarn.resourcemanager.address.rm2</name>
+  <value>ochadoop2:8032</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.scheduler.address.rm2</name>
+  <value>ochadoop2:8030</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.webapp.address.rm2</name>
+  <value>ochadoop2:8088</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.resource-tracker.address.rm2</name>
+  <value>ochadoop2:8031</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.admin.address.rm2</name>
+  <value>ochadoop2:8033</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.ha.admin.address.rm2</name>
+  <value>ochadoop2:23142</value>
+</property>
+<!-- recovery config -->
+<property>
+  <name>yarn.resourcemanager.recovery.enabled</name>
+  <value>true</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.store.class</name>
+  <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
+</property>
+
+<property>
+  <name>yarn.resourcemanager.zk.state-store.address</name>
+
+  <value>ochadoop1:2181,ochadoop2:2181,ochadoop3:2181</value>
+
+</property>
+
+<property>
+  <name>yarn.resourcemanager.zk-address</name>
+  <value>ochadoop1:2181,ochadoop2:2181,ochadoop3:2181</value>
+</property>
+
+<!-- am config -->
+<property>
+  <name>yarn.app.mapreduce.am.scheduler.connection.wait.interval-ms</name>
+  <value>5000</value>
+</property>
+
+<property>
+  <description>The maximum number of application attempts. It's a global
+  setting for all application masters. Each application master can specify
+  its individual maximum number of application attempts via the API, but the
+  individual number cannot be more than the global upper bound. If it is,
+  the resourcemanager will override it. The default number is set to 2, to
+  allow at least one retry for AM.</description>
+  <name>yarn.resourcemanager.am.max-attempts</name>
+  <value>6</value>
+</property>
+
+<!-- Node Manager Configs -->
+<property>
+  <description>Address where the localizer IPC is.</description>
+  <name>yarn.nodemanager.localizer.address</name>
+  <value>0.0.0.0:8040</value>
+</property>
+
+<property>
+  <description>NM Webapp address.</description>
+  <name>yarn.nodemanager.webapp.address</name>
+  <value>0.0.0.0:8042</value>
+</property>
+
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+
+<property>
+  <name>yarn.nodemanager.local-dirs</name>
+
+  <value>/home/ochadoop/app/hadoop-ocdp3.5/yarn/local </value>
+</property>
+
+<property>
+  <name>yarn.nodemanager.log-dirs</name>
+
+  <value>/home/ochadoop/app/hadoop-ocdp3.5/yarn/nodemanager</value>
+</property>
+
+<!-- scheduler config -->
+<property>
+  <name>yarn.resourcemanager.scheduler.class</name>
+  <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>
+</property>
+<property>
+  <name>yarn.scheduler.fair.allocation.file</name>
+  <value>/home/ochadoop/app/hadoop-ocdp3.5/etc/hadoop/fair-scheduler.xml</value>
+</property>
+<property>
+  <name>yarn.scheduler.fair.sizebasedweight</name>
+  <value>false</value>
+</property>
+<property>
+  <name>yarn.scheduler.fair.assignmultiple</name>
+  <value>false</value>
+</property>
+<property>
+  <name>yarn.scheduler.fair.max.assign</name>
+  <value>-1</value>
+</property>
+<property>
+  <description>The minimum allocation for every container request at the RM,
+  in MBs. Memory requests lower than this won't take effect,
+  and the specified value will get allocated at minimum.</description>
+  <name>yarn.scheduler.minimum-allocation-mb</name>
+  <value>512</value>
+</property>
+
+<property>
+  <description>The maximum allocation for every container request at the RM,
+  in MBs. Memory requests higher than this won't take effect,
+  and will get capped to this value.</description>
+  <name>yarn.scheduler.maximum-allocation-mb</name>
+  <value>8192</value>
+</property>
+
+<property>
+  <description>The minimum allocation for every container request at the RM,
+  in terms of virtual CPU cores. Requests lower than this won't take effect,
+  and the specified value will get allocated the minimum.</description>
+  <name>yarn.scheduler.minimum-allocation-vcores</name>
+  <value>1</value>
+</property>
+
+<property>
+  <description>The maximum allocation for every container request at the RM,
+  in terms of virtual CPU cores. Requests higher than this won't take effect,
+  and will get capped to this value.</description>
+  <name>yarn.scheduler.maximum-allocation-vcores</name>
+  <value>8</value>
+</property>
+
+<property>
+  <description>Amount of physical memory, in MB, that can be allocated 
+  for containers.</description>
+  <name>yarn.nodemanager.resource.memory-mb</name>
+
+  <value>4096</value>
+</property>
+
+<property>
+  <description>Number of CPU cores that can be allocated 
+  for containers.</description>
+  <name>yarn.nodemanager.resource.cpu-vcores</name>
+  <value>8</value>
+</property>
+
+<property>
+
+  <name>yarn.scheduler.increment-allocation-mb</name>
+  <value>512</value>
+</property>
+
+<property>
+
+  <name>yarn.scheduler.increment-allocation-vcores</name>
+  <value>1</value>
+</property>
+
+
+<property>
+  <description>Environment variables that should be forwarded from the NodeManager's environment to the container's.</description>
+  <name>yarn.nodemanager.admin-env</name>
+
+  <value>LD_LIBRARY_PATH=$HADOOP_COMMON_HOME/lib/native:/usr/lib64:$JAVA_HOME/jre/lib/amd64/server:$LD_LIBRARY_PATH</value>
+</property>
+
+<!-- log config -->
+<property>
+  <description>Whether to enable log aggregation</description>
+  <name>yarn.log-aggregation-enable</name>
+  <value>true</value>
+</property>
+
+<property>
+  <description>How long to keep aggregation logs before deleting them.  -1 disables. 
+  Be careful set this too small and you will spam the name node.</description>
+  <name>yarn.log-aggregation.retain-seconds</name>
+  <value>604800</value>
+</property> 
+
+<property>
+  <description>Where to aggregate logs to.</description>
+  <name>yarn.nodemanager.remote-app-log-dir</name>
+  <value>/tmp/logs</value>
+</property>
+
+<property>
+  <description>The remote log dir will be created at 
+    {yarn.nodemanager.remote-app-log-dir}/${user}/{thisParam}
+  </description>
+  <name>yarn.nodemanager.remote-app-log-dir-suffix</name>
+  <value>logs</value>
+</property>
+<property>
+  <name>yarn.log.server.url</name> 
+  <value>http://ochadoop1:19988/jobhistory/logs/</value>
+  <description>URL for job history server</description>
+</property>
+<!-- app config -->
+<property>
+  <value>
+    $HADOOP_CONF_DIR,
+    $HADOOP_COMMON_HOME/share/hadoop/common/*,
+    $HADOOP_COMMON_HOME/share/hadoop/common/lib/*,
+    $HADOOP_HDFS_HOME/share/hadoop/hdfs/*,
+    $HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*,
+    $HADOOP_YARN_HOME/share/hadoop/yarn/*,
+    $HADOOP_YARN_HOME/share/hadoop/yarn/lib/*
+ </value>
+</property>
+<!-- security config -->
+<property>
+  <name>yarn.acl.enable</name>
+  <value>false</value>
+  <description>Enable ACLs? Defaults to false.</description>
+</property>
+<property>
+  <name>yarn.admin.acl</name>
+  <value>ochadoop</value>
+  <description>ACL to set admins on the cluster. ACLs are of for comma-separated-usersspacecomma-separated-groups. Defaults to special value of * which means anyone. Special value of just space means no one has access</description>
+</property>
+<property>
+  <name>yarn.nodemanager.delete.debug-delay-sec</name>
+  <value>3600</value>
+</property>
+<property>
+  <description>No. of ms to wait between sending a SIGTERM and SIGKILL to a container</description>
+  <name>yarn.nodemanager.sleep-delay-before-sigkill.ms</name>
+  <value>30000</value>
+</property>
+
+
+<property>
+  <description>Whether physical memory limits will be enforced for
+  containers.</description>
+  <name>yarn.nodemanager.pmem-check-enabled</name>
+  <value>true</value>
+</property>
+<property>
+  <description>Whether virtual memory limits will be enforced for
+  containers.</description>
+  <name>yarn.nodemanager.vmem-check-enabled</name>
+  <value>false</value>
+</property>
+
+</configuration>

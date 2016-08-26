@@ -1,0 +1,144 @@
+package com.asiainfo.codis.client;
+
+import com.asiainfo.codis.conf.StatisticalTablesConf;
+import com.asiainfo.codis.util.CountRowUtils;
+import com.asiainfo.codis.util.OutputFileUtils;
+import org.apache.log4j.Logger;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Pipeline;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RecursiveTask;
+
+public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, Long>>> {
+    private Logger logger = Logger.getLogger(ClientToCodisHelper.class);
+    private Object[] keys;
+    private Pipeline pipeline;
+    private JedisPool jedisPool;
+    private Jedis jedis;
+
+    private int start;
+    private int end;
+
+    public ClientToCodisHelper(Object[] keys, Pipeline pipeline, JedisPool jedisPool, Jedis jedis, int start, int end) {
+        this.keys = keys;
+        this.pipeline = pipeline;
+        this.jedisPool = jedisPool;
+        this.jedis = jedis;
+        this.start = start;
+        this.end = end;
+    }
+
+    private void count(Map<String, Long> map, String key) {
+        if (map.containsKey(key)) {
+            long num = map.get(key) + 1;
+            map.put(key, num);
+        } else {
+            map.put(key, 1l);
+        }
+    }
+
+    @Override
+    protected Map<String, Map<String, Long>> compute() {
+        Map<String, Map<String, Long>> result = new HashMap();
+        Map<String, String> allTables = StatisticalTablesConf.getTables();
+
+        if (end - start > StatisticalTablesConf.MAX_ROW_NUM) {
+            int mid = (end + start) / 2;
+
+            ClientToCodisHelper left = new ClientToCodisHelper(keys, pipeline, jedisPool, jedis, start, mid);
+
+            ClientToCodisHelper right = new ClientToCodisHelper(keys, pipeline, jedisPool, jedis, mid + 1, end);
+
+            this.invokeAll(left, right);
+
+            try {
+                return CountRowUtils.mergeData(left.join(), right.join());
+            } catch (ExecutionException | InterruptedException e) {
+                logger.error(e.getMessage());
+                return result;
+            }
+
+        }
+        else {
+
+            Jedis jedis = jedisPool.getResource();
+            Pipeline pipeline = jedis.pipelined();
+
+
+            for (int i = start; i <= end; i++) {
+                String index = (String) keys[i];
+                pipeline.hgetAll(index);
+            }
+
+            List<Object> kvList = pipeline.syncAndReturnAll();
+
+            if (kvList == null) {
+                return result;
+            }
+
+            Map<String, List<String>> originalData = new HashMap();
+
+
+            for (Object m : kvList) {
+
+                Map<String, String> allColumnDataMap = (Map<String, String>) m;
+
+                for (Map.Entry<String, String> entry : allTables.entrySet()) {
+
+                    StringBuilder bs = new StringBuilder();
+
+                    String tableName = entry.getKey();
+                    String header = entry.getValue();
+
+                    Map<String, Long> tableCount = result.containsKey(tableName) ? result.get(tableName) : new HashMap();
+
+                    List<String> rows = originalData.containsKey(tableName) ? originalData.get(tableName) : new ArrayList();
+
+                    String[] headers = header.split(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);//all table columns
+
+                    for (String _header : headers) {
+                        bs.append(allColumnDataMap.get(_header)).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
+                    }
+
+                    count(tableCount, bs.toString());
+
+                    result.put(tableName, tableCount);
+
+                    rows.add(bs.toString());
+                    originalData.put(tableName, rows);
+                }
+            }
+
+
+            try {
+                pipeline.close();
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            } finally {
+                jedisPool.returnResource(jedis);
+            }
+
+
+            //export data to local file
+            for (Map.Entry<String, List<String>> entry : originalData.entrySet()){
+                String tableName = entry.getKey();
+                List<String> rows = entry.getValue();
+
+                String tableFullName = tableName + "-" + String.valueOf(System.currentTimeMillis()) + StatisticalTablesConf.TABLE_FILE_TYPE;
+
+                OutputFileUtils.exportToLocal(tableFullName, rows);
+
+            }
+
+
+
+            return result;
+        }
+    }
+}
