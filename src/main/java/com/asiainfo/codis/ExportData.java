@@ -23,7 +23,11 @@ public class ExportData {
         String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
         DOMConfigurator.configure(userdir + "log4j.xml");
 
+        String hdfsOutputPath = Conf.getProp("hdfs.output.path");
         String[] codisHostsInfo = Conf.getProp("codisHostsInfo").split(",");
+
+        OutputFileUtils.setHdfsOutputPath(hdfsOutputPath);
+        OutputFileUtils.init();
 
         long startTime=System.currentTimeMillis();
 
@@ -37,6 +41,7 @@ public class ExportData {
 
         exportData(finalResult);
 
+        OutputFileUtils.close();
         long endTime = System.currentTimeMillis();
         logger.info("Take " + (endTime - startTime) + "ms.");
 

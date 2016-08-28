@@ -3,6 +3,7 @@ package com.asiainfo.codis.client;
 import com.asiainfo.codis.conf.StatisticalTablesConf;
 import com.asiainfo.codis.util.CountRowUtils;
 import com.asiainfo.codis.util.OutputFileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -82,12 +83,13 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 return result;
             }
 
-            Map<String, List<String>> originalData = new HashMap();
-
+            List<String> rows = new ArrayList();
 
             for (Object m : kvList) {
 
                 Map<String, String> allColumnDataMap = (Map<String, String>) m;
+
+                rows.addAll(allColumnDataMap.values());
 
                 for (Map.Entry<String, String> entry : allTables.entrySet()) {
 
@@ -98,8 +100,6 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                     Map<String, Long> tableCount = result.containsKey(tableName) ? result.get(tableName) : new HashMap();
 
-                    List<String> rows = originalData.containsKey(tableName) ? originalData.get(tableName) : new ArrayList();
-
                     String[] headers = header.split(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);//all table columns
 
                     for (String _header : headers) {
@@ -109,12 +109,9 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                     count(tableCount, bs.toString());
 
                     result.put(tableName, tableCount);
-
-                    rows.add(bs.toString());
-                    originalData.put(tableName, rows);
                 }
-            }
 
+            }
 
             try {
                 pipeline.close();
@@ -125,18 +122,10 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
             }
 
 
-            //export data to local file
-            for (Map.Entry<String, List<String>> entry : originalData.entrySet()){
-                String tableName = entry.getKey();
-                List<String> rows = entry.getValue();
+            String fileName = "codis" + String.valueOf(System.currentTimeMillis()) + "-" + Thread.currentThread().getId() + StatisticalTablesConf.TABLE_FILE_TYPE;
 
-                String tableFullName = tableName + "-" + String.valueOf(System.currentTimeMillis()) + StatisticalTablesConf.TABLE_FILE_TYPE;
-
-                OutputFileUtils.exportToLocal(tableFullName, rows);
-
-            }
-
-
+            OutputFileUtils.exportToLocal(fileName, rows);
+            OutputFileUtils.exportToHDFS(fileName);
 
             return result;
         }

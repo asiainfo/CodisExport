@@ -1,7 +1,9 @@
 package com.asiainfo.codis.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.List;
@@ -9,12 +11,31 @@ import java.util.List;
 
 public class OutputFileUtils {
 
-    private static final String OUT_BASE_DIR = "tables" + File.separator;
+    private static Logger logger = Logger.getLogger(OutputFileUtils.class);
+    private static final String OUT_LOCAL_BASE_DIR = "tables" + File.separator;
+    private static final String HDFS_DEFAULT_OUTPUT_PATH = "/tmp/codis";
+    private static Configuration conf;
+    private static FileSystem fs;
+
+    private static String hdfsOutputPath;
 
     static {
-        File baseDir = new File(OUT_BASE_DIR);
+        File baseDir = new File(OUT_LOCAL_BASE_DIR);
+
         if (!baseDir.exists()){
             baseDir.mkdir();
+        }
+
+        String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
+        conf = new Configuration();
+        conf.addResource(new Path(userdir + File.separator + "hdfs-site.xml"));
+        conf.addResource(new Path(userdir + File.separator + "core-site.xml"));
+        conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+
+        try {
+            fs = FileSystem.get(conf);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
     }
 
@@ -22,7 +43,7 @@ public class OutputFileUtils {
         FileOutputStream outStr ;
         BufferedOutputStream buf = null;
         try {
-            outStr = new FileOutputStream(new File(OUT_BASE_DIR + fileName));
+            outStr = new FileOutputStream(new File(OUT_LOCAL_BASE_DIR + fileName));
             buf = new BufferedOutputStream(outStr);
             for (String data : datas){
                 buf.write((data + System.getProperty("line.separator", "\n")).getBytes());
@@ -45,26 +66,44 @@ public class OutputFileUtils {
 
     }
 
-    public static void exportToHDFS(File targetDir){
-
-    }
-
-    public static void exportToHDFS(String localFilePath, String hdfsPath){
-        String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
-        Configuration conf = new Configuration();
-
-        conf.addResource(new Path(userdir + File.separator + "hdfs-site.xml"));
-        conf.addResource(new Path(userdir + File.separator + "core-site.xml"));
-
-
+    public static void exportToHDFS(String localFileName){
         try {
-            if (!HDFSUtil.exits(conf, hdfsPath)){
-                HDFSUtil.createDirectory(conf, hdfsPath);
-            }
 
-            HDFSUtil.copyFromLocalFile(conf, localFilePath, hdfsPath);
+            Path localPath = new Path(OUT_LOCAL_BASE_DIR + localFileName);
+            Path remotePath = new Path(getOutputHdfsPath());
+
+            //TODO the first arg true or false?
+            fs.copyFromLocalFile(false, true, localPath, remotePath);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
+
+    public static void init() {
+        Path hdfsPath = new Path(getOutputHdfsPath());
+        try {
+            if (!fs.exists(hdfsPath)) {
+                fs.mkdirs(hdfsPath);
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public static void close(){
+        try {
+            fs.close();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public static void setHdfsOutputPath(String hdfsOutputPath) {
+        OutputFileUtils.hdfsOutputPath = hdfsOutputPath;
+    }
+
+    private static String getOutputHdfsPath(){
+        return StringUtils.isEmpty(hdfsOutputPath) ? HDFS_DEFAULT_OUTPUT_PATH : hdfsOutputPath;
+    }
+
 }
