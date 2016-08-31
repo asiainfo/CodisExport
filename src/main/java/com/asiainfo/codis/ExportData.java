@@ -31,7 +31,7 @@ public class ExportData {
 
         long startTime=System.currentTimeMillis();
 
-        ForkJoinPool pool = new ForkJoinPool();
+        ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
         ClientToCodis clientToCodis = new ClientToCodis(codisHostsInfo);
         ForkJoinTask<Map<String, Map<String, Long>>> result = pool.submit(clientToCodis);
 

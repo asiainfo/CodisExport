@@ -1,5 +1,7 @@
 package codis;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.*;
 import java.util.Properties;
 
@@ -27,6 +29,9 @@ public class Conf {
 	private static Properties properties = new Properties();
 	private static Properties msn_cn= new Properties();
 	private static Properties msn_en= new Properties();
+
+	public final static String CODIS_CLIENT_THREAD_COUNT = "codis.client.thread-count";
+	public final static int DEFAULT_CODIS_CLIENT_THREAD_COUNT = 8;
 //	public static void init(){
 	static {
 		try {
@@ -39,7 +44,6 @@ public class Conf {
 			if (inputStream == null){
 			      //throw new RuntimeException(CONFIG_FILE + " not found in classpath");
 			}else{
-				  properties.load(new FileInputStream("conf" + File.separator + CONFIG_FILE));
 				  properties.load(new FileInputStream("conf" + File.separator + CONFIG_FILE));
 				  inputStream.close();
 			}
@@ -70,6 +74,14 @@ public class Conf {
 	    } catch (IOException ie) {
 	    	ie.printStackTrace();
 	    }
+	}
+
+	public static int getInt(String name, int defaultValue) {
+		String valueString = StringUtils.trim(properties.getProperty(name));
+		if (StringUtils.isEmpty(valueString))
+			return defaultValue;
+
+		return Integer.parseInt(valueString);
 	}
 	
 

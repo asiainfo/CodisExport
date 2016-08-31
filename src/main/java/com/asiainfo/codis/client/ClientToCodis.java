@@ -73,13 +73,11 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
             Set<String> set = jedis.keys(StatisticalTablesConf.CODIS_KEY_PREFIX + ":*");
             Object[] keys = set.toArray();
 
-            Pipeline pipeline = jedis.pipelined();
-
             int keyNum = keys.length;
 
             ForkJoinPool pool = new ForkJoinPool();
 
-            ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, pipeline, jedisPool, jedis, 0, keyNum-1);
+            ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1);
 
             ForkJoinTask<Map<String, Map<String, Long>>> finalResult = pool.submit(clientToCodisHelper);
 

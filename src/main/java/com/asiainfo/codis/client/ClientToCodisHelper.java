@@ -19,18 +19,14 @@ import java.util.concurrent.RecursiveTask;
 public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, Long>>> {
     private Logger logger = Logger.getLogger(ClientToCodisHelper.class);
     private Object[] keys;
-    private Pipeline pipeline;
     private JedisPool jedisPool;
-    private Jedis jedis;
 
     private int start;
     private int end;
 
-    public ClientToCodisHelper(Object[] keys, Pipeline pipeline, JedisPool jedisPool, Jedis jedis, int start, int end) {
+    public ClientToCodisHelper(Object[] keys, JedisPool jedisPool, int start, int end) {
         this.keys = keys;
-        this.pipeline = pipeline;
         this.jedisPool = jedisPool;
-        this.jedis = jedis;
         this.start = start;
         this.end = end;
     }
@@ -52,9 +48,9 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
         if (end - start > StatisticalTablesConf.MAX_ROW_NUM) {
             int mid = (end + start) / 2;
 
-            ClientToCodisHelper left = new ClientToCodisHelper(keys, pipeline, jedisPool, jedis, start, mid);
+            ClientToCodisHelper left = new ClientToCodisHelper(keys, jedisPool, start, mid);
 
-            ClientToCodisHelper right = new ClientToCodisHelper(keys, pipeline, jedisPool, jedis, mid + 1, end);
+            ClientToCodisHelper right = new ClientToCodisHelper(keys, jedisPool, mid + 1, end);
 
             this.invokeAll(left, right);
 
