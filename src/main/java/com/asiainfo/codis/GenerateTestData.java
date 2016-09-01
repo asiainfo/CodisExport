@@ -1,11 +1,13 @@
 package com.asiainfo.codis;
 
+import codis.Conf;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -130,6 +132,42 @@ public class GenerateTestData implements Runnable {
         System.out.println("Sum is " + j);
 
         countDownLatch.countDown();
+
+    }
+
+
+    public static void main(String[] args) {
+
+        //获取所有的codis集群的slave的ip和port信息，配置到了配置文件里
+        String[] codisHostsInfo = Conf.getProp("codisHostsInfo").split(",");
+
+        CountDownLatch countDownLatch;//定义一个静态的CountDownLatch
+
+        //System.out.println("Start time : " + new Date());
+        long startTime=System.currentTimeMillis();
+
+        countDownLatch = new CountDownLatch(2);
+
+        //System.out.println("Start to send message...");
+        for(String v : codisHostsInfo){
+            String[] ipPort = v.split(":");
+            new Thread(new GenerateTestData(ipPort[0], Integer.valueOf(ipPort[1]), countDownLatch)).start();
+        }
+
+        long firstEndTime=System.currentTimeMillis();
+        System.out.println("Finish all messages." + (firstEndTime-startTime)+"ms");
+
+
+        try {
+            countDownLatch.await();   //等待子线程全部执行结束（等待CountDownLatch计数变为0）
+            long endTime = System.currentTimeMillis(); //获取结束时间
+            System.out.println("End time : " + new Date());
+            System.out.println("程序运行时间 " + (endTime-startTime)+"ms");
+
+        } catch (InterruptedException e) {
+            System.exit(1);
+            e.printStackTrace();
+        }
 
     }
 
