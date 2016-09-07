@@ -32,6 +32,12 @@ public class Conf {
 
 	public final static String CODIS_CLIENT_THREAD_COUNT = "codis.client.thread-count";
 	public final static int DEFAULT_CODIS_CLIENT_THREAD_COUNT = 8;
+	public final static String CODIS_EXPORT_MAX_ROW = "codis.export.maximum-row-per-thread";
+	public final static int DEFAULT_CODIS_EXPORT_MAX_ROW = 1000;
+
+    public final static String EXPORT_FILE_ENABLE = "export.source-file.enable";
+    public final static boolean DEFAULT_EXPORT_FILE_ENABLE = false;
+
 //	public static void init(){
 	static {
 		try {
@@ -83,6 +89,19 @@ public class Conf {
 
 		return Integer.parseInt(valueString);
 	}
+
+    public static boolean getBoolean(String name, boolean defaultValue) {
+        String valueString = StringUtils.trim(properties.getProperty(name));
+        if (null == valueString || valueString.isEmpty()) {
+            return defaultValue;
+        }
+
+        if (StringUtils.equalsIgnoreCase("true", valueString))
+            return true;
+        else if (StringUtils.equalsIgnoreCase("false", valueString))
+            return false;
+        else return defaultValue;
+    }
 	
 
 	public static String getDbType(){

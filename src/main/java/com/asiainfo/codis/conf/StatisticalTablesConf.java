@@ -15,11 +15,10 @@ public class StatisticalTablesConf {
 
     public final static String TABLE_COLUMN_SEPARATOR = ",";
 
-    public final static String TABLE_PRIMARY_KEY_FLAG = "*";
+    public final static String TABLE_IGNORE_HEADER_FLAG = "#";
     public final static String CODIS_KEY_PREFIX = "siteposition";
     public final static String TABLE_FILE_TYPE = ".txt";
-
-    public final static int MAX_ROW_NUM = 20;
+    public final static String EMPTY_VALUE = "NA";
 
     static {
         try {

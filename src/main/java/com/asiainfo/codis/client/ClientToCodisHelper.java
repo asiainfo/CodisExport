@@ -1,18 +1,17 @@
 package com.asiainfo.codis.client;
 
+import codis.Conf;
 import com.asiainfo.codis.conf.StatisticalTablesConf;
+import com.asiainfo.codis.event.EventQueue;
 import com.asiainfo.codis.util.CountRowUtils;
-import com.asiainfo.codis.util.OutputFileUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RecursiveTask;
 
@@ -24,11 +23,15 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
     private int start;
     private int end;
 
-    public ClientToCodisHelper(Object[] keys, JedisPool jedisPool, int start, int end) {
+    private EventQueue eventQueue;
+
+    public ClientToCodisHelper(Object[] keys, JedisPool jedisPool, int start, int end, EventQueue eventQueue) {
         this.keys = keys;
         this.jedisPool = jedisPool;
         this.start = start;
         this.end = end;
+
+        this.eventQueue = eventQueue;
     }
 
     private void count(Map<String, Long> map, String key) {
@@ -45,12 +48,12 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
         Map<String, Map<String, Long>> result = new HashMap();
         Map<String, String> allTables = StatisticalTablesConf.getTables();
 
-        if (end - start > StatisticalTablesConf.MAX_ROW_NUM) {
+        if (end - start > Conf.getInt(Conf.CODIS_EXPORT_MAX_ROW, Conf.DEFAULT_CODIS_EXPORT_MAX_ROW)) {
             int mid = (end + start) / 2;
 
-            ClientToCodisHelper left = new ClientToCodisHelper(keys, jedisPool, start, mid);
+            ClientToCodisHelper left = new ClientToCodisHelper(keys, jedisPool, start, mid, eventQueue);
 
-            ClientToCodisHelper right = new ClientToCodisHelper(keys, jedisPool, mid + 1, end);
+            ClientToCodisHelper right = new ClientToCodisHelper(keys, jedisPool, mid + 1, end, eventQueue);
 
             this.invokeAll(left, right);
 
@@ -85,7 +88,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                 Map<String, String> allColumnDataMap = (Map<String, String>) m;
 
-                rows.addAll(allColumnDataMap.values());
+                rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]"));
 
                 for (Map.Entry<String, String> entry : allTables.entrySet()) {
 
@@ -98,30 +101,41 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                     String[] headers = header.split(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);//all table columns
 
+                    boolean isIgnoreRow = false;
+
                     for (String _header : headers) {
-                        bs.append(allColumnDataMap.get(_header)).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
+                        String colValue = StringUtils.trimToEmpty(allColumnDataMap.get(_header));
+                        if (StringUtils.isEmpty(colValue)) {
+                            colValue = StatisticalTablesConf.EMPTY_VALUE;
+                        }
+//                        if (StringUtils.startsWith(_header, StatisticalTablesConf.TABLE_IGNORE_HEADER_FLAG) && BooleanUtils.toBoolean(colValue)){//TODO
+//                            isIgnoreRow = true;
+//                            break;
+//                        }
+
+                        bs.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
                     }
 
-                    count(tableCount, bs.toString());
-
-                    result.put(tableName, tableCount);
+                    if (!isIgnoreRow){
+                        count(tableCount, bs.toString());
+                        result.put(tableName, tableCount);
+                    }
                 }
 
             }
 
             try {
                 pipeline.close();
-            } catch (IOException e) {
+
+                if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
+                    eventQueue.produceEvent(rows);
+                }
+
+            } catch (Exception e) {
                 logger.error(e.getMessage());
             } finally {
                 jedisPool.returnResource(jedis);
             }
-
-
-            String fileName = "codis" + String.valueOf(System.currentTimeMillis()) + "-" + Thread.currentThread().getId() + StatisticalTablesConf.TABLE_FILE_TYPE;
-
-            OutputFileUtils.exportToLocal(fileName, rows);
-            OutputFileUtils.exportToHDFS(fileName);
 
             return result;
         }

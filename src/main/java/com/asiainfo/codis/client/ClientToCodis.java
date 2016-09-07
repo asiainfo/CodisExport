@@ -1,11 +1,12 @@
 package com.asiainfo.codis.client;
 
+import codis.Conf;
 import com.asiainfo.codis.conf.StatisticalTablesConf;
+import com.asiainfo.codis.event.EventQueue;
 import com.asiainfo.codis.util.CountRowUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Pipeline;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -22,19 +23,28 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
     private int start;
     private int end;
 
+    private ForkJoinPool pool;
+    private EventQueue eventQueue;
 
-    public ClientToCodis(String[] codisHostsInfo) {
+
+    public ClientToCodis(String[] codisHostsInfo, ForkJoinPool pool, EventQueue eventQueue) {
         this.codisHostsInfo = codisHostsInfo;
         init();
 
         start = 0;
         end = codisHostsInfo.length - 1;
+
+        this.pool = pool;
+        this.eventQueue = eventQueue;
     }
 
-    public ClientToCodis(String[] codisHostsInfo, int start, int end) {
+    public ClientToCodis(String[] codisHostsInfo, int start, int end, ForkJoinPool pool, EventQueue eventQueue) {
         this.codisHostsInfo = codisHostsInfo;
         this.start = start;
         this.end = end;
+
+        this.pool = pool;
+        this.eventQueue = eventQueue;
     }
 
 
@@ -45,9 +55,9 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
         if (end != start){
             int mid = (end + start) / 2;
 
-            ClientToCodis left = new ClientToCodis(codisHostsInfo, start, mid);
+            ClientToCodis left = new ClientToCodis(codisHostsInfo, start, mid, pool, eventQueue);
 
-            ClientToCodis right = new ClientToCodis(codisHostsInfo, mid + 1, end);
+            ClientToCodis right = new ClientToCodis(codisHostsInfo, mid + 1, end, pool, eventQueue);
 
             this.invokeAll(left, right);
 
@@ -75,10 +85,9 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
 
             int keyNum = keys.length;
 
-            ForkJoinPool pool = new ForkJoinPool();
+            ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1, eventQueue);
 
-            ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1);
-
+            //ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
             ForkJoinTask<Map<String, Map<String, Long>>> finalResult = pool.submit(clientToCodisHelper);
 
             result = finalResult.join();
