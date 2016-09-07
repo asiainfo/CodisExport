@@ -46,7 +46,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
     @Override
     protected Map<String, Map<String, Long>> compute() {
         Map<String, Map<String, Long>> result = new HashMap();
-        //Map<String, String> allTables = StatisticalTablesConf.getTables();
+
         Map<String, CodisTable> allTablesSchema = StatisticalTablesConf.getAllTablesSchema();
 
         if (end - start > Conf.getInt(Conf.CODIS_EXPORT_MAX_ROW, Conf.DEFAULT_CODIS_EXPORT_MAX_ROW)) {
@@ -102,9 +102,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                     String[] headers = header.split(",");//all table columns
 
-                    boolean isKeep= true;
-
-                    //String where = codisTable.getWhere();
+                    Map<String, Boolean> eachAvailability = new HashMap<>();
 
                     for (String _header : headers) {
                         String colValue = allColumnDataMap.get(_header);
@@ -117,22 +115,17 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                         Condition condition;
                         if (conditions.containsKey(_header)){
-                            condition = conditions.get(_header);//.deepClone();
+                            condition = conditions.get(_header);
 
                             Context context = new Context(condition);
 
-
-                            isKeep = context.matches(colValue);
-                        }
-
-                        if (isKeep == false){
-                            break;
+                            eachAvailability.put(_header, context.matches(colValue));
                         }
 
                         targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
                     }
 
-                    if (isKeep){
+                    if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
                         count(tableCount, targetRowKey.toString());
                     }
 
@@ -157,5 +150,36 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
             logger.debug("Result size : " + result.size());
             return result;
         }
+    }
+
+    private boolean isAvailableRow(String where, Map<String, Boolean> eachAvailability){
+        String[] orList = StringUtils.splitByWholeSeparator(where, Condition.OR);
+        boolean result = false;
+
+        for (String orCon : orList){
+            if (orCon.contains(Condition.AND)){
+                String[] andList = StringUtils.splitByWholeSeparator(orCon, Condition.AND);
+                boolean isAllTrue = true;
+                for (String tt : andList){
+                    if (!eachAvailability.get(tt)){
+                        isAllTrue = false;
+                        break;
+                    }
+                }
+
+                if (isAllTrue){
+                    result = true;
+                }
+
+            }else {
+                //TODO need more test here
+                if (eachAvailability.get(orCon)){
+                    result = true;
+                }
+
+            }
+        }
+
+        return result;
     }
 }

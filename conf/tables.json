@@ -12,6 +12,10 @@
   "footfall-residence": {
     "header":"area_code,pspt_eparchy_id",
     "conditions":{
+      "area_code":{
+        "<":2,
+        "sign":"||"
+      },
       "pspt_eparchy_id":{
         "eq":"abc",
         "sign":"&&"
