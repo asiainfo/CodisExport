@@ -18,7 +18,7 @@ public class EventFactory implements Runnable {
     @Override
     public void run() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2000);//TODO
         } catch (InterruptedException e) {
             logger.error(e);
         }

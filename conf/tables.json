@@ -1,0 +1,25 @@
+{
+  "footfall-Callerloc": {
+    "header":"area_code,province_id",
+    "conditions":{
+      "area_code":{
+        "like":"111|888",
+        "sign":"&&"
+      }
+    },
+    "where":"area_code||province_id"
+  },
+  "footfall-residence": {
+    "header":"area_code,pspt_eparchy_id",
+    "conditions":{
+      "pspt_eparchy_id":{
+        "eq":"abc",
+        "sign":"&&"
+      }
+    },
+    "where":"area_code&&province_id"
+  }
+}
+
+
+

@@ -27,6 +27,8 @@ public class ExportData {
         String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
         DOMConfigurator.configure(userdir + "log4j.xml");
 
+        StatisticalTablesConf.init();
+
         String[] codisHostsInfo = Conf.getProp("codisHostsInfo").split(",");
         ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
 
@@ -41,6 +43,10 @@ public class ExportData {
         ForkJoinTask<Map<String, Map<String, Long>>> result = pool.submit(clientToCodis);
 
         Map<String, Map<String, Long>> finalResult = result.join();
+
+        if (result.getException() != null){
+            logger.error(result.getException());
+        }
 
         logger.info("All tasks have been done.");
 

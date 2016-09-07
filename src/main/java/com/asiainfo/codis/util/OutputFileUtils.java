@@ -1,5 +1,6 @@
 package com.asiainfo.codis.util;
 
+import codis.Conf;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -32,11 +33,14 @@ public class OutputFileUtils {
         conf.addResource(new Path(userdir + File.separator + "core-site.xml"));
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
 
-        try {
-            fs = FileSystem.get(conf);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
+            try {
+                fs = FileSystem.get(conf);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
         }
+
     }
 
     public static void exportToLocal(String fileName, List<String> datas){

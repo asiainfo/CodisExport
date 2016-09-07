@@ -1,6 +1,9 @@
 package com.asiainfo.codis.client;
 
 import codis.Conf;
+import com.asiainfo.codis.conf.CodisTable;
+import com.asiainfo.codis.conf.Condition;
+import com.asiainfo.codis.conf.ConditionImpl;
 import com.asiainfo.codis.conf.StatisticalTablesConf;
 import com.asiainfo.codis.event.EventQueue;
 import com.asiainfo.codis.util.CountRowUtils;
@@ -46,7 +49,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
     @Override
     protected Map<String, Map<String, Long>> compute() {
         Map<String, Map<String, Long>> result = new HashMap();
-        Map<String, String> allTables = StatisticalTablesConf.getTables();
+        //Map<String, String> allTables = StatisticalTablesConf.getTables();
+        Map<String, CodisTable> allTablesSchema = StatisticalTablesConf.getAllTablesSchema();
 
         if (end - start > Conf.getInt(Conf.CODIS_EXPORT_MAX_ROW, Conf.DEFAULT_CODIS_EXPORT_MAX_ROW)) {
             int mid = (end + start) / 2;
@@ -84,45 +88,57 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
             List<String> rows = new ArrayList();
 
-            for (Object m : kvList) {
+            for (Object m : kvList) { // go through every row
+                Map<String, String> allColumnDataMap = (Map<String, String>) m; // a row in codis, the key is col name
 
-                Map<String, String> allColumnDataMap = (Map<String, String>) m;
+                rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]")); //value to a row list
 
-                rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]"));
+                for (Map.Entry<String, CodisTable> entry : allTablesSchema.entrySet()) {// go through every table
 
-                for (Map.Entry<String, String> entry : allTables.entrySet()) {
-
-                    StringBuilder bs = new StringBuilder();
+                    StringBuilder targetRowKey = new StringBuilder();
 
                     String tableName = entry.getKey();
-                    String header = entry.getValue();
+                    CodisTable codisTable = entry.getValue();
+                    String header = codisTable.getHeader();
 
                     Map<String, Long> tableCount = result.containsKey(tableName) ? result.get(tableName) : new HashMap();
 
-                    String[] headers = header.split(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);//all table columns
+                    String[] headers = header.split(",");//all table columns
 
-                    boolean isIgnoreRow = false;
+                    boolean isKeep= true;
+
+                    //String where = codisTable.getWhere();
 
                     for (String _header : headers) {
-                        String colValue = StringUtils.trimToEmpty(allColumnDataMap.get(_header));
-                        if (StringUtils.isEmpty(colValue)) {
+                        String colValue = allColumnDataMap.get(_header);
+
+                        if (colValue == null) {
                             colValue = StatisticalTablesConf.EMPTY_VALUE;
                         }
-//                        if (StringUtils.startsWith(_header, StatisticalTablesConf.TABLE_IGNORE_HEADER_FLAG) && BooleanUtils.toBoolean(colValue)){//TODO
-//                            isIgnoreRow = true;
-//                            break;
-//                        }
 
-                        bs.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
+                        Map<String, ConditionImpl> conditions = codisTable.getConditions();
+
+                        ConditionImpl condition;
+                        if (conditions.containsKey(_header)){
+                            condition = conditions.get(_header);//.deepClone();
+                            isKeep = condition.matches(colValue);
+                        }
+
+                        if (isKeep == false){
+                            break;
+                        }
+
+                        targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
                     }
 
-                    if (!isIgnoreRow){
-                        count(tableCount, bs.toString());
-                        result.put(tableName, tableCount);
+                    if (isKeep){
+                        count(tableCount, targetRowKey.toString());
                     }
-                }
 
-            }
+                    result.put(tableName, tableCount);
+                }// end of every table
+
+            }//end of a row
 
             try {
                 pipeline.close();
@@ -137,6 +153,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 jedisPool.returnResource(jedis);
             }
 
+            logger.debug("Result size : " + result.size());
             return result;
         }
     }

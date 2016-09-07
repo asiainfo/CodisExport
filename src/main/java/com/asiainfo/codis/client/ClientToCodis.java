@@ -92,6 +92,12 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
 
             result = finalResult.join();
 
+
+            if (finalResult.getException() != null){
+                logger.error(finalResult.getException());
+            }
+
+
             jedisPool.close();
 
             return result;

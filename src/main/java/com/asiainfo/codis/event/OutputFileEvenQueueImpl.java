@@ -14,9 +14,10 @@ public class OutputFileEvenQueueImpl extends EventQueue<List<String>>{
     private static Logger logger = Logger.getLogger(OutputFileEvenQueueImpl.class);
     public OutputFileEvenQueueImpl() {
         String hdfsOutputPath = Conf.getProp("hdfs.output.path");
-
-        OutputFileUtils.setHdfsOutputPath(hdfsOutputPath);
-        OutputFileUtils.init();
+        if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
+            OutputFileUtils.setHdfsOutputPath(hdfsOutputPath);
+            OutputFileUtils.init();
+        }
     }
 
     @Override
