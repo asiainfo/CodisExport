@@ -7,10 +7,10 @@ import java.util.Map;
  */
 public class CodisTable {
     private String header;
-    private Map<String, ConditionImpl> conditions;
+    private Map<String, Condition> conditions;
     private String where;
 
-    public CodisTable(String header, Map<String, ConditionImpl> conditions) {
+    public CodisTable(String header, Map<String, Condition> conditions) {
         this.header = header;
         this.conditions = conditions;
     }
@@ -30,7 +30,7 @@ public class CodisTable {
         return header;
     }
 
-    public Map<String, ConditionImpl> getConditions() {
+    public Map<String, Condition> getConditions() {
         return conditions;
     }
 

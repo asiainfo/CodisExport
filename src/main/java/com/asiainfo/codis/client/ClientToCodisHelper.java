@@ -1,10 +1,7 @@
 package com.asiainfo.codis.client;
 
 import codis.Conf;
-import com.asiainfo.codis.conf.CodisTable;
-import com.asiainfo.codis.conf.Condition;
-import com.asiainfo.codis.conf.ConditionImpl;
-import com.asiainfo.codis.conf.StatisticalTablesConf;
+import com.asiainfo.codis.conf.*;
 import com.asiainfo.codis.event.EventQueue;
 import com.asiainfo.codis.util.CountRowUtils;
 
@@ -116,12 +113,16 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                             colValue = StatisticalTablesConf.EMPTY_VALUE;
                         }
 
-                        Map<String, ConditionImpl> conditions = codisTable.getConditions();
+                        Map<String, Condition> conditions = codisTable.getConditions();
 
-                        ConditionImpl condition;
+                        Condition condition;
                         if (conditions.containsKey(_header)){
                             condition = conditions.get(_header);//.deepClone();
-                            isKeep = condition.matches(colValue);
+
+                            Context context = new Context(condition);
+
+
+                            isKeep = context.matches(colValue);
                         }
 
                         if (isKeep == false){

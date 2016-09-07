@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * Created by peng on 16/9/7.
  */
-public abstract class Condition implements Serializable {
+public class Condition{
     public static final String AND = "&&";
     public static final String OR = "||";
 
@@ -42,7 +42,7 @@ public abstract class Condition implements Serializable {
 
 
 
-    public abstract boolean matches(String value);
+    //public abstract boolean matches(String value);
 
     public double getEqual() {
         return equal;
