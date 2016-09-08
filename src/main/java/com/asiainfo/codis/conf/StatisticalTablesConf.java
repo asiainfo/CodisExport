@@ -1,5 +1,6 @@
 package com.asiainfo.codis.conf;
 
+import codis.Conf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -19,7 +20,7 @@ public class StatisticalTablesConf {
 
     private static Map<String, CodisTable> allTablesSchema;
 
-    public final static String TABLE_COLUMN_SEPARATOR = ",";
+    public static String TABLE_COLUMN_SEPARATOR = Conf.getProp().getProperty(Conf.OUTPUT_FILE_SEPARATOR, Conf.DEFAULT_OUTPUT_FILE_SEPARATOR);
 
     public final static String TABLE_IGNORE_HEADER_FLAG = "#";
     public final static String CODIS_KEY_PREFIX = "siteposition";

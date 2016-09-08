@@ -15,6 +15,7 @@ import java.io.File;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -64,15 +65,17 @@ public class ExportData {
         for (Map.Entry entry : finalResult.entrySet()) {
             String filePath = entry.getKey() + StatisticalTablesConf.TABLE_FILE_TYPE;
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            java.util.Date date = new java.util.Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("yyyyMMddHHmm");
+
+            Date date = new Date();
 
             List<String> list = new ArrayList();
 
             Map<String, Long> rows = (Map<String, Long>)entry.getValue();
 
             for (String key : rows.keySet()){
-                list.add(sdf.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
             }
 
             OutputFileUtils.exportToLocal(filePath, list);
