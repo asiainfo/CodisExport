@@ -38,6 +38,9 @@ public class Conf {
     public final static String EXPORT_FILE_ENABLE = "export.source-file.enable";
     public final static boolean DEFAULT_EXPORT_FILE_ENABLE = false;
 
+	public final static String OUTPUT_FILE_SEPARATOR = "output.file.separator";
+	public final static String DEFAULT_OUTPUT_FILE_SEPARATOR = ",";
+
 //	public static void init(){
 	static {
 		try {
@@ -125,6 +128,9 @@ public class Conf {
 	public static String getProp(String name){
 		return properties.getProperty(name, "");
 	}
+    public static Properties getProp(){
+        return properties;
+    }
 	public static String getWebName(){
 		return WEB_NAME;
 	}

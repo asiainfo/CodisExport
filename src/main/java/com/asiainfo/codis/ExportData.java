@@ -62,11 +62,11 @@ public class ExportData {
 
     public static void exportData(Map<String, Map<String, Long>> finalResult){
         logger.info("Start to export data...");
-        for (Map.Entry entry : finalResult.entrySet()) {
+        for (Map.Entry<String, Map<String, Long>> entry : finalResult.entrySet()) {
             String filePath = entry.getKey() + StatisticalTablesConf.TABLE_FILE_TYPE;
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("yyyyMMddHHmm");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getDateFormat());
+            SimpleDateFormat timeFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getTimeFormat());
 
             Date date = new Date();
 

@@ -161,7 +161,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 String[] andList = StringUtils.splitByWholeSeparator(orCon, Condition.AND);
                 boolean isAllTrue = true;
                 for (String andCon : andList){
-                    if (eachAvailability.get(orCon) != null && !eachAvailability.get(andCon)){
+                    if (eachAvailability.get(andCon) != null && !eachAvailability.get(andCon)){
                         isAllTrue = false;
                         break;
                     }

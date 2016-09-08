@@ -9,6 +9,8 @@ public class CodisTable {
     private String header;
     private Map<String, Condition> conditions;
     private String where;
+    private String dateFormat = "yyyyMMdd";
+    private String timeFormat = "yyyyMMddHHmm";
 
     public CodisTable(String header, Map<String, Condition> conditions) {
         this.header = header;
@@ -16,13 +18,14 @@ public class CodisTable {
     }
 
 
-
-
     @Override
     public String toString() {
         return "CodisTable{" +
                 "header='" + header + '\'' +
                 ", conditions=" + conditions +
+                ", where='" + where + '\'' +
+                ", dateFormat='" + dateFormat + '\'' +
+                ", timeFormat='" + timeFormat + '\'' +
                 '}';
     }
 
@@ -36,5 +39,13 @@ public class CodisTable {
 
     public String getWhere() {
         return where;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public String getTimeFormat() {
+        return timeFormat;
     }
 }
