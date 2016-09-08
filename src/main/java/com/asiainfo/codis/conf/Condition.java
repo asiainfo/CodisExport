@@ -38,7 +38,7 @@ public class Condition{
     @SerializedName("ne")
     private String notEqString;
 
-    private String sign;
+    private String sign = AND;
 
 
 
