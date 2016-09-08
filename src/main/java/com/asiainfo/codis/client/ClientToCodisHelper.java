@@ -118,8 +118,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                             condition = conditions.get(_header);
 
                             Context context = new Context(condition);
-
                             eachAvailability.put(_header, context.matches(colValue));
+
                         }
 
                         targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
@@ -160,8 +160,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
             if (orCon.contains(Condition.AND)){
                 String[] andList = StringUtils.splitByWholeSeparator(orCon, Condition.AND);
                 boolean isAllTrue = true;
-                for (String tt : andList){
-                    if (!eachAvailability.get(tt)){
+                for (String andCon : andList){
+                    if (eachAvailability.get(orCon) != null && !eachAvailability.get(andCon)){
                         isAllTrue = false;
                         break;
                     }
@@ -172,8 +172,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 }
 
             }else {
-                //TODO need more test here
-                if (eachAvailability.get(orCon)){
+                if (eachAvailability.get(orCon) != null && eachAvailability.get(orCon)){
                     result = true;
                 }
 
