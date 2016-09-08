@@ -7,19 +7,19 @@
  - 每个列对应的过滤条件
  - 表的过滤条件
  
- ##样例
-```json
-{
-  "footfall-Callerloc" : {
-    "header":"area_code,province_id",
-    "conditions":{
-      "area_code":{
-        "like":"111|888",
-        "sign":"&&"
-      }
-    },
-    "where":"area_code||province_id"
-  }
+##样例
+ ```json
+ {
+   "footfall-Callerloc" : {
+     "header":"area_code,province_id",
+     "conditions":{
+       "area_code":{
+         "like":"111|888",
+         "sign":"&&"
+       }
+     },
+   "where":"area_code||province_id"
+ }
 }
 ```
  
@@ -46,7 +46,7 @@
  - 最后一行的`where`条件，是指在`conditions`里面定义了过滤条件的列之间是与`&&`还是或`||`的关系，可以是多个与`&&`和或`||`，但是不支持有括号，默认
  按照运算符的优先级规则进行运算。
  
- ##总结
+##总结
  以上是对一个表的配置，在tables.json的配置文件里面可以配置多个表
 
    
