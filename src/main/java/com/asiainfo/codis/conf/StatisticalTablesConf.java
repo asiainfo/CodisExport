@@ -16,14 +16,15 @@ public class StatisticalTablesConf {
     private static Logger logger = Logger.getLogger(StatisticalTablesConf.class);
     private static String TABLES_CONFIG = "tables.json";
     private static Properties properties = new Properties();
-    private static Map<String, String> allTables = new HashMap<String, String>();
+    private static Map<String, String> allTables = new HashMap<>();
 
     private static Map<String, CodisTable> allTablesSchema;
 
     public static String TABLE_COLUMN_SEPARATOR = Conf.getProp().getProperty(Conf.OUTPUT_FILE_SEPARATOR, Conf.DEFAULT_OUTPUT_FILE_SEPARATOR);
 
     public final static String TABLE_IGNORE_HEADER_FLAG = "#";
-    public final static String CODIS_KEY_PREFIX = "siteposition";
+    public final static String CODIS_KEY_PREFIX = "codis_key_prefix";
+    public final static String DEFAULT_CODIS_KEY_PREFIX = "siteposition";
     public final static String TABLE_FILE_TYPE = ".txt";
     public final static String EMPTY_VALUE = "#NA#";
 

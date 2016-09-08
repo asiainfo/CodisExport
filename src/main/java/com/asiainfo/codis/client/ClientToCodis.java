@@ -80,7 +80,7 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
             JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()));
             Jedis jedis = jedisPool.getResource();
 
-            Set<String> set = jedis.keys(StatisticalTablesConf.CODIS_KEY_PREFIX + ":*");
+            Set<String> set = jedis.keys(Conf.getProp().getProperty(StatisticalTablesConf.CODIS_KEY_PREFIX, StatisticalTablesConf.DEFAULT_CODIS_KEY_PREFIX) + ":*");
             Object[] keys = set.toArray();
 
             int keyNum = keys.length;
