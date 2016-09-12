@@ -114,7 +114,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                         Map<String, Condition> conditions = codisTable.getConditions();
 
                         Condition condition;
-                        if (conditions.containsKey(_header)){
+                        if (conditions != null && conditions.containsKey(_header)){
                             condition = conditions.get(_header);
 
                             Context context = new Context(condition);
