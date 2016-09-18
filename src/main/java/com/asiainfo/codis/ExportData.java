@@ -63,7 +63,7 @@ public class ExportData {
     public static void exportData(Map<String, Map<String, Long>> finalResult){
         logger.info("Start to export data...");
         for (Map.Entry<String, Map<String, Long>> entry : finalResult.entrySet()) {
-            String filePath = entry.getKey() + StatisticalTablesConf.TABLE_FILE_TYPE;
+            String filePath = entry.getKey() + "-" + System.currentTimeMillis() + StatisticalTablesConf.TABLE_FILE_TYPE;
 
             SimpleDateFormat dateFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getDateFormat());
             SimpleDateFormat timeFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getTimeFormat());
@@ -72,7 +72,7 @@ public class ExportData {
 
             List<String> list = new ArrayList();
 
-            Map<String, Long> rows = (Map<String, Long>)entry.getValue();
+            Map<String, Long> rows = entry.getValue();
 
             for (String key : rows.keySet()){
                 list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
