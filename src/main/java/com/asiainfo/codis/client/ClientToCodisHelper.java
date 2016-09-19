@@ -20,6 +20,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
     private Object[] keys;
     private JedisPool jedisPool;
 
+    private String codisAddress;
+
     private int start;
     private int end;
 
@@ -53,8 +55,10 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
             int mid = (end + start) / 2;
 
             ClientToCodisHelper left = new ClientToCodisHelper(keys, jedisPool, start, mid, eventQueue);
+            left.setCodisAddress(codisAddress);
 
             ClientToCodisHelper right = new ClientToCodisHelper(keys, jedisPool, mid + 1, end, eventQueue);
+            right.setCodisAddress(codisAddress);
 
             this.invokeAll(left, right);
 
@@ -68,6 +72,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
         }
         else {
 
+            long startTime=System.currentTimeMillis();
             Jedis jedis = jedisPool.getResource();
             Pipeline pipeline = jedis.pipelined();
 
@@ -79,6 +84,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
             List<Object> kvList = pipeline.syncAndReturnAll();
 
+            long endFromCodisTime = System.currentTimeMillis();
+            logger.info("Get '" + kvList.size() + "' data from codis<" + codisAddress + "> taking " + (endFromCodisTime - startTime) + "ms.");
             if (kvList == null) {
                 return result;
             }
@@ -147,6 +154,10 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 jedisPool.returnResource(jedis);
             }
 
+            long endTime = System.currentTimeMillis();
+
+            logger.info("Compute data taking " + (endTime - endFromCodisTime) + "ms.");
+
             logger.debug("Result size : " + result.size());
             return result;
         }
@@ -180,5 +191,9 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
         }
 
         return result;
+    }
+
+    public void setCodisAddress(String codisAddress) {
+        this.codisAddress = codisAddress;
     }
 }

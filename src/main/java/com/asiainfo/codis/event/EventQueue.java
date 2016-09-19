@@ -8,9 +8,15 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public abstract class EventQueue<T> {
 
+
     protected BlockingQueue<T> events = new LinkedBlockingQueue();
 
     public abstract boolean consumeEvent();
 
     public abstract boolean produceEvent(T events);
+
+
+    public int getEventsCounts() {
+        return events.size();
+    }
 }

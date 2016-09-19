@@ -1,393 +1,212 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>codis-export-data</groupId>
-  <artifactId>codis-export-data</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>codis-export-data</name>
-  
-<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hadoop-two.version>2.7.1</hadoop-two.version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>codis-export-data</groupId>
+    <artifactId>codis-export-data</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>codis-export-data</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hadoop-two.version>2.7.1</hadoop-two.version>
     </properties>
-	
-	<dependencies>
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>2.8.0</version>
-		</dependency>
 
-
-		<dependency>  
-            <groupId>org.apache.hadoop</groupId>  
-            <artifactId>hadoop-common</artifactId>  
-            <version>${hadoop-two.version}</version>  
-        </dependency>  
-        <dependency>  
-            <groupId>org.apache.hadoop</groupId>  
-            <artifactId>hadoop-hdfs</artifactId>  
-            <version>${hadoop-two.version}</version>  
-        </dependency>  
-        <dependency>  
-            <groupId>org.apache.hadoop</groupId>  
-            <artifactId>hadoop-client</artifactId>  
-            <version>${hadoop-two.version}</version>  
+    <dependencies>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.8.0</version>
         </dependency>
 
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.7</version>
-		</dependency>
-		
-		
-		
-		
-		
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hive</groupId> -->
-<!-- 			<artifactId>hive-exec</artifactId> -->
-<!-- 			<version>1.2.1</version> -->
-<!-- 			<type>jar</type> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>org.apache.velocity</groupId> -->
-<!-- 					<artifactId>velocity</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>org.mortbay.jetty</groupId> -->
-<!-- 					<artifactId>jetty</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>org.mortbay.jetty</groupId> -->
-<!-- 					<artifactId>jetty-util</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>commons-beanutils</artifactId> -->
-<!-- 					<groupId>commons-beanutils</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>antlr</artifactId> -->
-<!-- 					<groupId>antlr</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>datanucleus-connectionpool</artifactId> -->
-<!-- 					<groupId>org.datanucleus</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>datanucleus-core</artifactId> -->
-<!-- 					<groupId>org.datanucleus</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>datanucleus-enhancer</artifactId> -->
-<!-- 					<groupId>org.datanucleus</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>datanucleus-rdbms</artifactId> -->
-<!-- 					<groupId>org.datanucleus</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>antlr</artifactId> -->
-<!-- 					<groupId>org.antlr</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<artifactId>hadoop-yarn-server-resourcemanager</artifactId> -->
-<!-- 					<groupId>org.apache.hadoop</groupId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hive</groupId> -->
-<!-- 			<artifactId>hive-jdbc</artifactId> -->
-<!-- 			<version>1.2.1</version> -->
-<!-- 			<type>jar</type> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		 <exclusions> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>sqlline</artifactId> -->
-<!-- 		   <groupId>sqlline</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		 </exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hive</groupId> -->
-<!-- 			<artifactId>hive-service</artifactId> -->
-<!-- 			<version>1.2.1</version> -->
-<!-- 			<type>jar</type> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hive</groupId> -->
-<!-- 			<artifactId>hive-metastore</artifactId> -->
-<!-- 			<version>1.2.1</version> -->
-<!-- 			<type>jar</type> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		 <exclusions> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>datanucleus-connectionpool</artifactId> -->
-<!-- 		   <groupId>org.datanucleus</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>datanucleus-core</artifactId> -->
-<!-- 		   <groupId>org.datanucleus</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>datanucleus-enhancer</artifactId> -->
-<!-- 		   <groupId>org.datanucleus</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>datanucleus-rdbms</artifactId> -->
-<!-- 		   <groupId>org.datanucleus</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		  <exclusion> -->
-<!-- 		   <artifactId>antlr</artifactId> -->
-<!-- 		   <groupId>org.antlr</groupId> -->
-<!-- 		  </exclusion> -->
-<!-- 		 </exclusions> -->
-<!-- 		</dependency> -->
-	
-	
-		<!-- hadoop cdh -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hadoop</groupId> -->
-<!-- 			<artifactId>hadoop-mapreduce-client-core</artifactId> -->
-<!-- 			<version>${hadoop-two.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hadoop</groupId> -->
-<!-- 			<artifactId>hadoop-mapreduce-client-jobclient</artifactId> -->
-<!-- 			<version>${hadoop-two.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hadoop</groupId> -->
-<!-- 			<artifactId>hadoop-hdfs</artifactId> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>javax.servlet.jsp</groupId> -->
-<!-- 					<artifactId>jsp-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>javax.servlet</groupId> -->
-<!-- 					<artifactId>servlet-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>stax</groupId> -->
-<!-- 					<artifactId>stax-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>tomcat</groupId> -->
-<!-- 					<artifactId>jasper-runtime</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>tomcat</groupId> -->
-<!-- 					<artifactId>jasper-compiler</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 			<version>${hadoop-two.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.hadoop</groupId> -->
-<!-- 			<artifactId>hadoop-common</artifactId> -->
-<!-- 			<version>${hadoop-two.version}</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>javax.servlet.jsp</groupId> -->
-<!-- 					<artifactId>jsp-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>javax.servlet</groupId> -->
-<!-- 					<artifactId>servlet-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>stax</groupId> -->
-<!-- 					<artifactId>stax-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>tomcat</groupId> -->
-<!-- 					<artifactId>jasper-runtime</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>tomcat</groupId> -->
-<!-- 					<artifactId>jasper-compiler</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-	
-		<dependency>
-			<groupId>net.sf.json-lib</groupId>
-			<artifactId>json-lib</artifactId>
-			<version>2.3</version>
-			<type>jar</type>
-			<classifier>jdk13</classifier>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-jexl</artifactId>
-		    <version>2.0.1</version>
-		    <type>jar</type>
-		    <scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.6.1</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>xml-apis</artifactId>
-					<groupId>xml-apis</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	
-	
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.13</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-        <!--
-                <dependency>
-                    <groupId>io.codis.jodis</groupId>
-                    <artifactId>jodis</artifactId>
-                    <version>0.3.0</version>
-                </dependency>
-                -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.9.2</artifactId>
-			<version>0.8.1.1</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>jmxri</artifactId>
-					<groupId>com.sun.jmx</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jms</artifactId>
-					<groupId>javax.jms</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jmxtools</artifactId>
-					<groupId>com.sun.jdmk</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
-	
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop-two.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop-two.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop-two.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-app</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-yarn-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-			
-			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-dependency-plugin</artifactId>
-		        <version>2.8</version>
-		        <executions>
-		          <execution>
-		            <id>copy-dependencies</id>
-		            <phase>package</phase>
-		            <goals>
-		              <goal>copy-dependencies</goal>
-		            </goals>
-		            <configuration>
-		              <outputDirectory>target/lib</outputDirectory>
-		              <overWriteReleases>false</overWriteReleases>
-		              <overWriteSnapshots>true</overWriteSnapshots>
-		              <overWriteIfNewer>true</overWriteIfNewer>
-		              <!--<excludeArtifactIds>-->
-		                <!--storm-core,zookeeper,clojure,clj-time,joda-time,core.incubator,tools.macro,clout,ring-core,hiccup,ring-core,clj-stacktrace,ring-servlet,servlet-api,jetty,jetty-util,tools.loggin,math.numeric-tower,tools.cli,commons-io,commons-exec,commons-lang,curator-framework,curator-client,guava,json-simple,slf4j-api,carbonite,kryo,reflectasm,asm,minlog,objenesis,chill-java,snakeyaml,httpclient,httpcore,commons-logging,commons-codec,disruptor,jgrapht-core,logback-classic,logback-core,log4j-over-slf4j,slf4j-api,netty-->
-		              <!--</excludeArtifactIds>-->
-		            </configuration>
-		          </execution>
-		        </executions>
-		      </plugin>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.7</version>
+        </dependency>
 
-<!-- 			<plugin> -->
-<!-- 		        <artifactId>maven-dependency-plugin</artifactId> -->
-<!-- 		        <configuration> -->
-<!-- 		          <outputDirectory>${basedir}/target/lib</outputDirectory> -->
-<!-- 		          <excludeTransitive>false</excludeTransitive> -->
-<!-- 		          <stripVersion>true</stripVersion> -->
-<!-- 		        </configuration> -->
-<!-- 		      </plugin> -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+    </dependencies>
 
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
 
 
-			<plugin>  
-				<groupId>org.apache.maven.plugins</groupId>  
-				<artifactId>maven-resources-plugin</artifactId>  
-				<version>2.6</version>  
-				<executions>  
-					<execution>  
-						<id>copy-resources</id>  
-						<phase>package</phase>  
-						<goals>  
-							<goal>copy-resources</goal>  
-						</goals>  
-						<configuration>  
-							<encoding>UTF-8</encoding>  
-							<outputDirectory>${basedir}/../target/codis-export-data/conf</outputDirectory>
-							<resources>  
-								<resource>  
-									<directory>src/main/resources/</directory>  
-									<includes>  
-										<include>*</include>
-									</includes>  
-								</resource>  
-							</resources>  
-						</configuration>  
-					</execution>  
-				</executions>  
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <!--<excludeArtifactIds>-->
+                            <!--storm-core,zookeeper,clojure,clj-time,joda-time,core.incubator,tools.macro,clout,ring-core,hiccup,ring-core,clj-stacktrace,ring-servlet,servlet-api,jetty,jetty-util,tools.loggin,math.numeric-tower,tools.cli,commons-io,commons-exec,commons-lang,curator-framework,curator-client,guava,json-simple,slf4j-api,carbonite,kryo,reflectasm,asm,minlog,objenesis,chill-java,snakeyaml,httpclient,httpcore,commons-logging,commons-codec,disruptor,jgrapht-core,logback-classic,logback-core,log4j-over-slf4j,slf4j-api,netty-->
+                            <!--</excludeArtifactIds>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${basedir}/target/lib/commons-collections-3.2.1.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-configuration-1.6.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-io-2.4.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-lang-2.6.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-logging-1.1.3.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-pool2-2.3.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/guava-11.0.2.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/hadoop-client-2.7.1.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/hadoop-common-2.7.1.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/hadoop-hdfs-2.7.1.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/jedis-2.8.0.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/log4j-1.2.17.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/gson-2.7.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/hadoop-auth-2.7.1.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/slf4j-log4j12-1.7.10.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/slf4j-api-1.7.10.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/htrace-core-3.1.0-incubating.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/servlet-api-2.5.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/commons-cli-1.2.jar" todir="${basedir}/target/runtimelib"/>
+                                <copy file="${basedir}/target/lib/protobuf-java-2.5.0.jar" todir="${basedir}/target/runtimelib"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<!-- put your configurations here -->
-					<transformers>
-						<transformer implementation = "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>com.asiainfo.codis.ExportData</mainClass>
-						</transformer>
-					</transformers>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <outputDirectory>${basedir}/../target/codis-export-data/conf</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/</directory>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-			
-		</plugins>
-	</build>
-	
+
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-shade-plugin</artifactId>-->
+            <!--<version>2.2</version>-->
+            <!--<configuration>-->
+            <!--&lt;!&ndash; put your configurations here &ndash;&gt;-->
+            <!--<transformers>-->
+            <!--<transformer-->
+            <!--implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+            <!--<mainClass>com.asiainfo.codis.ExportData</mainClass>-->
+            <!--</transformer>-->
+            <!--</transformers>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+
+
+        </plugins>
+    </build>
+
 
 </project>

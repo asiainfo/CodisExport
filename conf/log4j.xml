@@ -15,7 +15,7 @@
 
 	<!-- File Appender, used to record debug & info log. -->
 	<appender name="file" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="${user.dir}/logs/log_test.log" />
+		<param name="File" value="${codis_export_log_path}/codis-export.log" />
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="1024KB" />
 		<param name="MaxBackupIndex" value="10" />
@@ -25,11 +25,10 @@
 		</layout>
 	</appender>
 
-    <logger name="com.asiainfo.codis">
-        <level value="INFO" />
-        <appender-ref ref="file" />
-        <appender-ref ref="console" />
-    </logger>
-
+	<logger name="com.asiainfo">
+		<level value="INFO" />
+		<appender-ref ref="file" />
+		<appender-ref ref="console" />
+	</logger>
 
 </log4j:configuration>

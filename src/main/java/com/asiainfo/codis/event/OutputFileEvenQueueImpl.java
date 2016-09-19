@@ -23,17 +23,22 @@ public class OutputFileEvenQueueImpl extends EventQueue<List<String>>{
     @Override
     public boolean consumeEvent() {
         List<String> event = null;
+        long startTime=System.currentTimeMillis();
         logger.debug("Start to export data to local ...");
         try {
-            event = events.take();// 从盘子开始取一个鸡蛋，如果盘子空了，当前线程阻塞
+            event = events.take();
         } catch (InterruptedException e) {
             logger.error(e);
         }
 
         String fileName = "codis-" + String.valueOf(System.currentTimeMillis()) + StatisticalTablesConf.TABLE_FILE_TYPE;
         OutputFileUtils.exportToLocal(fileName, event);
+        long endLocalTime=System.currentTimeMillis();
+        logger.debug("Export data to local taking " + (endLocalTime - startTime) + "ms.");
         logger.debug("Start to export data to hdfs ...");
         OutputFileUtils.exportToHDFS(fileName);
+        long endHdfsTime=System.currentTimeMillis();
+        logger.debug("Export data to HDFS taking " + (endHdfsTime - endLocalTime) + "ms.");
 
         return events.isEmpty();
     }

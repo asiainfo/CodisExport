@@ -1,6 +1,7 @@
 package com.asiainfo.codis.conf;
 
 import codis.Conf;
+import com.asiainfo.codis.ExportData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -10,6 +11,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class StatisticalTablesConf {
@@ -17,6 +19,7 @@ public class StatisticalTablesConf {
     private static String TABLES_CONFIG = "tables.json";
     private static Properties properties = new Properties();
     private static Map<String, String> allTables = new HashMap<>();
+    public static boolean isAllDone = false;
 
     private static Map<String, CodisTable> allTablesSchema;
 
@@ -43,9 +46,10 @@ public class StatisticalTablesConf {
 
     public static void init(){
         try {
+            String confDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "conf" + File.separator;
             Gson gson = new GsonBuilder().create();
 
-            allTablesSchema = gson.fromJson(FileUtils.readFileToString(new File("conf" + File.separator + TABLES_CONFIG)), new TypeToken<Map<String, CodisTable>>() {
+            allTablesSchema = gson.fromJson(FileUtils.readFileToString(new File(confDir + TABLES_CONFIG)), new TypeToken<Map<String, CodisTable>>() {
             }.getType());
         } catch (IOException e) {
             logger.error(e.getMessage());

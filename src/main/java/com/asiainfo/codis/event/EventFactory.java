@@ -1,5 +1,6 @@
 package com.asiainfo.codis.event;
 
+import com.asiainfo.codis.conf.StatisticalTablesConf;
 import com.asiainfo.codis.util.OutputFileUtils;
 import org.apache.log4j.Logger;
 
@@ -17,16 +18,14 @@ public class EventFactory implements Runnable {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(2000);//TODO
-        } catch (InterruptedException e) {
-            logger.error(e);
-        }
 
         while (true) {
 
-            if (eventQueue.consumeEvent()) {
+            if (eventQueue.consumeEvent() && StatisticalTablesConf.isAllDone) {
                 break;
+            }
+            else {
+                logger.debug("Left " + eventQueue.getEventsCounts() + " files copied to HDFS.");
             }
 
         }

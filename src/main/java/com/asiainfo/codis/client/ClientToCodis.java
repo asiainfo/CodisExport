@@ -80,12 +80,17 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
             JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()));
             Jedis jedis = jedisPool.getResource();
 
+            long startTime=System.currentTimeMillis();
             Set<String> set = jedis.keys(Conf.getProp().getProperty(StatisticalTablesConf.CODIS_KEY_PREFIX, StatisticalTablesConf.DEFAULT_CODIS_KEY_PREFIX) + ":*");
             Object[] keys = set.toArray();
 
             int keyNum = keys.length;
 
+            long endTime = System.currentTimeMillis();
+            logger.info("Get '" + keyNum + "' keys taking " + (endTime - startTime) + "ms from " + codisHostsInfo[start] + ".");
+
             ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1, eventQueue);
+            clientToCodisHelper.setCodisAddress(codisHostsInfo[start]);
 
             //ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
             ForkJoinTask<Map<String, Map<String, Long>>> finalResult = pool.submit(clientToCodisHelper);

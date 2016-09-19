@@ -1,8 +1,10 @@
 package codis;
 
+import com.asiainfo.codis.ExportData;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Conf {
@@ -45,15 +47,15 @@ public class Conf {
 	static {
 		try {
 			InputStream inputStream = Conf.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
-
+			String confDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "conf" + File.separator;
 			//InputStream tablesInputStream = Conf.class.getClassLoader().getResourceAsStream(TABLES_CONFIG);
 
-			System.out.println(new File("conf" + File.separator + CONFIG_FILE).getAbsolutePath());
+			//System.out.println(new File("conf" + File.separator + CONFIG_FILE).getAbsolutePath());
 		
 			if (inputStream == null){
 			      //throw new RuntimeException(CONFIG_FILE + " not found in classpath");
 			}else{
-				  properties.load(new FileInputStream("conf" + File.separator + CONFIG_FILE));
+				  properties.load(new FileInputStream(confDir + CONFIG_FILE));
 				  inputStream.close();
 			}
 		} catch (FileNotFoundException fnf) {

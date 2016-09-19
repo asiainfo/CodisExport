@@ -1,19 +1,21 @@
 package com.asiainfo.codis.util;
 
 import codis.Conf;
+import com.asiainfo.codis.ExportData;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.List;
 
 
 public class OutputFileUtils {
 
     private static Logger logger = Logger.getLogger(OutputFileUtils.class);
-    private static final String OUT_LOCAL_BASE_DIR = "tables" + File.separator;
+    private static String OUT_LOCAL_BASE_DIR = "tables" + File.separator;
     private static final String HDFS_DEFAULT_OUTPUT_PATH = "/tmp/codis";
     private static Configuration conf;
     private static FileSystem fs;
@@ -21,16 +23,20 @@ public class OutputFileUtils {
     private static String hdfsOutputPath;
 
     static {
-        File baseDir = new File(OUT_LOCAL_BASE_DIR);
+        String baseDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent().toString();
+        OUT_LOCAL_BASE_DIR = baseDir + File.separator + "tables" + File.separator;
+        File out_local_base_dir = new File(OUT_LOCAL_BASE_DIR);
 
-        if (!baseDir.exists()){
-            baseDir.mkdir();
+        if (!out_local_base_dir.exists()){
+            out_local_base_dir.mkdir();
         }
 
-        String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
+        String confDir = baseDir + File.separator + "conf" + File.separator;
+
+
         conf = new Configuration();
-        conf.addResource(new Path(userdir + File.separator + "hdfs-site.xml"));
-        conf.addResource(new Path(userdir + File.separator + "core-site.xml"));
+        conf.addResource(new Path(confDir + File.separator + "hdfs-site.xml"));
+        conf.addResource(new Path(confDir + File.separator + "core-site.xml"));
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
 
         if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){

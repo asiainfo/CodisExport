@@ -13,6 +13,9 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 import java.io.File;
 
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,9 +27,17 @@ import java.util.concurrent.*;
 public class ExportData {
     private static Logger logger = Logger.getLogger(ExportData.class);
 
+
     public static void main(String[] args) throws Exception{
-        String userdir = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
-        DOMConfigurator.configure(userdir + "log4j.xml");
+
+        String confDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "conf" + File.separator;
+
+        String logDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "logs";
+
+        System.setProperty ("codis_export_log_path", logDir);
+
+
+        DOMConfigurator.configure(confDir + "log4j.xml");
 
         StatisticalTablesConf.init();
 
@@ -34,8 +45,10 @@ public class ExportData {
         ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
 
         EventQueue<List<String>> eventQueue = new OutputFileEvenQueueImpl();
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
+
         if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
-            pool.submit(new EventFactory(eventQueue));
+            fixedThreadPool.execute(new EventFactory(eventQueue));
         }
 
         long startTime=System.currentTimeMillis();
@@ -50,13 +63,12 @@ public class ExportData {
         }
 
         logger.info("All tasks have been done.");
+        StatisticalTablesConf.isAllDone = true;
 
+        fixedThreadPool.shutdown();
         exportData(finalResult);
-
-
         long endTime = System.currentTimeMillis();
         logger.info("Take " + (endTime - startTime) + "ms.");
-
     }
 
 
