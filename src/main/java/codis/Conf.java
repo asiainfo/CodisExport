@@ -2,6 +2,7 @@ package codis;
 
 import com.asiainfo.codis.ExportData;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -42,6 +43,13 @@ public class Conf {
 
 	public final static String OUTPUT_FILE_SEPARATOR = "output.file.separator";
 	public final static String DEFAULT_OUTPUT_FILE_SEPARATOR = ",";
+
+	public final static String CODIS_EXPORT_INTERVAL_S = "codis.export.interval-s";
+	public final static long DEFAULT_CODIS_EXPORT_INTERVAL_S = 600L;
+
+	private static Logger logger = Logger.getLogger(Conf.class);
+
+
 
 //	public static void init(){
 	static {
@@ -92,8 +100,35 @@ public class Conf {
 		if (StringUtils.isEmpty(valueString))
 			return defaultValue;
 
-		return Integer.parseInt(valueString);
+		int result;
+		try
+		{
+			result = Integer.parseInt(valueString);
+		}catch (NumberFormatException e){
+			logger.error("Invalid value '" + valueString + "' of property '" + name + "'");
+			return defaultValue;
+		}
+
+		return result;
 	}
+
+	public static long getLong(String name, long defaultValue) {
+		String valueString = StringUtils.trim(properties.getProperty(name));
+		if (StringUtils.isEmpty(valueString))
+			return defaultValue;
+
+		long result;
+		try
+		{
+			result = Long.parseLong(valueString);
+		}catch (NumberFormatException e){
+			logger.error("Invalid value '" + valueString + "' of property '" + name + "'");
+			return defaultValue;
+		}
+
+		return result;
+	}
+
 
     public static boolean getBoolean(String name, boolean defaultValue) {
         String valueString = StringUtils.trim(properties.getProperty(name));

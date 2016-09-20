@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,13 +29,13 @@ public class ExportData {
     private static Logger logger = Logger.getLogger(ExportData.class);
 
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
         String confDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "conf" + File.separator;
 
         String logDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent() + File.separator + "logs";
 
-        System.setProperty ("codis_export_log_path", logDir);
+        System.setProperty("codis_export_log_path", logDir);
 
 
         DOMConfigurator.configure(confDir + "log4j.xml");
@@ -47,18 +48,18 @@ public class ExportData {
         EventQueue<List<String>> eventQueue = new OutputFileEvenQueueImpl();
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
 
-        if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
+        if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)) {
             fixedThreadPool.execute(new EventFactory(eventQueue));
         }
 
-        long startTime=System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         ClientToCodis clientToCodis = new ClientToCodis(codisHostsInfo, pool, eventQueue);
         ForkJoinTask<Map<String, Map<String, Long>>> result = pool.submit(clientToCodis);
 
         Map<String, Map<String, Long>> finalResult = result.join();
 
-        if (result.getException() != null){
+        if (result.getException() != null) {
             logger.error(result.getException());
         }
 
@@ -72,25 +73,40 @@ public class ExportData {
     }
 
 
-    public static void exportData(Map<String, Map<String, Long>> finalResult){
+    public static void exportData(Map<String, Map<String, Long>> finalResult) {
         logger.info("Start to export data...");
-        for (Map.Entry<String, Map<String, Long>> entry : finalResult.entrySet()) {
-            String filePath = entry.getKey() + "-" + System.currentTimeMillis() + StatisticalTablesConf.TABLE_FILE_TYPE;
+        try {
+            SimpleDateFormat postfixFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String startTimeStr = postfixFormat.format(new Date()) + " 00:00";
+            long startTimeLong = postfixFormat.parse(startTimeStr).getTime();
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getDateFormat());
-            SimpleDateFormat timeFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getTimeFormat());
+            for (Map.Entry<String, Map<String, Long>> entry : finalResult.entrySet()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getDateFormat());
+                SimpleDateFormat timeFormat = new SimpleDateFormat(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getTimeFormat());
+                Date date = new Date();
 
-            Date date = new Date();
+                SimpleDateFormat currentFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String currentTimeStr = currentFormat.format(date);
+                long currentTimeLong = currentFormat.parse(currentTimeStr).getTime();
 
-            List<String> list = new ArrayList();
+                String filePostfix = String.valueOf((currentTimeLong - startTimeLong)/1000/Conf.getLong(Conf.CODIS_EXPORT_INTERVAL_S, Conf.DEFAULT_CODIS_EXPORT_INTERVAL_S));
 
-            Map<String, Long> rows = entry.getValue();
 
-            for (String key : rows.keySet()){
-                list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                String filePath = entry.getKey() + "-" + postfixFormat.format(date) + "_" + filePostfix + StatisticalTablesConf.TABLE_FILE_TYPE;
+
+
+                List<String> list = new ArrayList();
+
+                Map<String, Long> rows = entry.getValue();
+
+                for (String key : rows.keySet()) {
+                    list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                }
+
+                OutputFileUtils.exportToLocal(filePath, list);
             }
-
-            OutputFileUtils.exportToLocal(filePath, list);
+        } catch (ParseException e) {
+            logger.error(e.getMessage());
         }
     }
 
