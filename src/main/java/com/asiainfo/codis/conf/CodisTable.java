@@ -14,6 +14,7 @@ public class CodisTable {
     private String dateFormat = "yyyyMMdd";
     private String timeFormat = "yyyyMMddHHmm";
     private String handlerClass;
+    private String alias;
 
     private final String DEFAULT_HANDER_CLASS = "com.asiainfo.codis.action.AssemblyImpl";
 
@@ -62,4 +63,7 @@ public class CodisTable {
         return handlerClass;
     }
 
+    public String getAlias() {
+        return alias;
+    }
 }

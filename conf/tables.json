@@ -1,17 +1,63 @@
 {
-  "security-registered_residence_minute_table":{
+  "security-location_IMSI_SEGMENT_ATTR":{
+    "alias":"公共安全-特定区域客流量常态化监控号码归属地分钟表",
+    "header":"security_area,city_code",
+    "dateFormat":"yyyy-MM-dd",
+    "timeFormat":"yyyy-MM-dd HH:mm"
+  },
+  "tour-location_IMSI_SEGMENT_ATTR": {
+    "alias":"景区-特定区域客流量常态化监控号码归属地分钟表",
+    "header":"tour_area,city_code",
+    "dateFormat":"yyyyMMdd",
+    "timeFormat":"yyyyMMddHHmm"
+  },
+  "security-location_registered_residence": {
+    "alias":"公共安全-特定区域客流量常态化监控户籍地分钟表",
     "header":"security_area,pspt_eparchy_id",
     "dateFormat":"yyyy-MM-dd",
     "timeFormat":"yyyy-MM-dd HH:mm"
   },
-  "security-registered_residence_crowd_structure_minute_table": {
-    "header":"security_area,age_level,sex,pspt_prov_code,pspt_eparchy_id",
+  "security-location_registered_residence_crowd_structure": {
+    "alias":"公共安全-特定区域客流量常态化监控户籍地人群结构分钟表",
+    "header":"security_area,age_level,sex,eparchy_id,pspt_prov_code,pspt_eparchy_id",
     "dateFormat":"yyyy-MM-dd",
     "timeFormat":"yyyy-MM-dd HH:mm"
   },
-  "security-area_minute_table": {
+  "security-location_area": {
+    "alias":"公共安全-特定区域客流量常态化监控区域级分钟表",
     "header":"security_area",
     "dateFormat":"yyyy-MM-dd",
     "timeFormat":"yyyy-MM-dd HH:mm"
+  },
+  "tour-location_area": {
+    "alias":"景区-特定区域客流量常态化监控区域级分钟表",
+    "header":"tour_area",
+    "dateFormat":"yyyyMMdd",
+    "timeFormat":"yyyyMMddHHmm"
+  },
+  "security-footfall_location_area": {
+    "alias":"公共安全-客流量常态化监控热力图特定区域级分钟表",
+    "header":"longitude,latitude,security_area",
+    "dateFormat":"yyyy-MM-dd",
+    "timeFormat":"yyyy-MM-dd HH:mm",
+    "handlerClass":"com.asiainfo.codis.action.PeriodFieldAssemblyimpl"
+  },
+  "tour-footfall_location_area": {
+    "alias":"景区-客流量常态化监控热力图特定区域级分钟表",
+    "header":"longitude,latitude,tour_area",
+    "dateFormat":"yyyyMMdd",
+    "timeFormat":"yyyyMMddHHmm"
+  },
+  "tour-footfall_prefectural": {
+    "alias":"景区-客流量常态化监控热力图地市级分钟表",
+    "header":"longitude,latitude,eparchy_id",
+    "dateFormat":"yyyyMMdd",
+    "timeFormat":"yyyyMMddHHmm"
+  },
+  "tour-footfall_province": {
+    "alias":"景区-客流量常态化监控热力图全省分钟表",
+    "header":"longitude,latitude",
+    "dateFormat":"yyyyMMdd",
+    "timeFormat":"yyyyMMddHHmm"
   }
 }
