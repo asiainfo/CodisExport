@@ -2,8 +2,6 @@
 
 BIN_PATH=$(cd `dirname $0`; pwd)
 
-cd ${HOME_PATH}
-
 for jarFile in `ls $BIN_PATH/../lib/*jar`
 do
   CLASSPATH=$CLASSPATH:$jarFile

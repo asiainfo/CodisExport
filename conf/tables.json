@@ -1,33 +1,17 @@
 {
-  "footfall-Callerloc": {
-    "header":"area_code,province_id",
-    "dateFormat":"yyyyMMdd",
-    "timeFormat":"yyyyMMddHHmm",
-    "conditions":{
-      "area_code":{
-        "like":"111|888",
-        "sign":"&&"
-      }
-    },
-    "where":"area_code||province_id"
-  },
-  "footfall-residence": {
-    "header":"area_code,pspt_eparchy_id",
+  "security-registered_residence_minute_table":{
+    "header":"security_area,pspt_eparchy_id",
     "dateFormat":"yyyy-MM-dd",
-    "timeFormat":"yyyy-MM-dd HH:mm",
-    "conditions":{
-      "area_code":{
-        ">":800,
-        "sign":"||"
-      },
-      "pspt_eparchy_id":{
-        "eq":"abc",
-        "sign":"&&"
-      }
-    },
-    "where":"area_code||pspt_eparchy_id"
+    "timeFormat":"yyyy-MM-dd HH:mm"
+  },
+  "security-registered_residence_crowd_structure_minute_table": {
+    "header":"security_area,age_level,sex,pspt_prov_code,pspt_eparchy_id",
+    "dateFormat":"yyyy-MM-dd",
+    "timeFormat":"yyyy-MM-dd HH:mm"
+  },
+  "security-area_minute_table": {
+    "header":"security_area",
+    "dateFormat":"yyyy-MM-dd",
+    "timeFormat":"yyyy-MM-dd HH:mm"
   }
 }
-
-
-
