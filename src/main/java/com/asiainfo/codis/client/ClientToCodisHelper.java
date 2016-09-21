@@ -64,8 +64,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
             try {
                 return CountRowUtils.mergeData(left.join(), right.join());
-            } catch (ExecutionException | InterruptedException e) {
-                logger.error(e.getMessage());
+            } catch (Exception e) {
+                logger.error("Merge data failed.", e);
                 return result;
             }
 
@@ -149,7 +149,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 }
 
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.error("Unknown error.", e);
             } finally {
                 jedisPool.returnResource(jedis);
             }

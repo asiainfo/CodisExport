@@ -1,6 +1,7 @@
 package com.asiainfo.codis;
 
 import codis.Conf;
+import com.asiainfo.codis.action.Assembly;
 import com.asiainfo.codis.client.ClientToCodis;
 import com.asiainfo.codis.conf.StatisticalTablesConf;
 import com.asiainfo.codis.event.EventFactory;
@@ -27,7 +28,6 @@ import java.util.concurrent.*;
 
 public class ExportData {
     private static Logger logger = Logger.getLogger(ExportData.class);
-
 
     public static void main(String[] args) throws Exception {
 
@@ -89,24 +89,26 @@ public class ExportData {
                 String currentTimeStr = currentFormat.format(date);
                 long currentTimeLong = currentFormat.parse(currentTimeStr).getTime();
 
-                String filePostfix = String.valueOf((currentTimeLong - startTimeLong)/1000/Conf.getLong(Conf.CODIS_EXPORT_INTERVAL_S, Conf.DEFAULT_CODIS_EXPORT_INTERVAL_S));
-
+                String filePostfix = String.valueOf((currentTimeLong - startTimeLong) / 1000 / Conf.getLong(Conf.CODIS_EXPORT_INTERVAL_S, Conf.DEFAULT_CODIS_EXPORT_INTERVAL_S));
 
                 String filePath = entry.getKey() + "-" + postfixFormat.format(date) + "_" + filePostfix + StatisticalTablesConf.TABLE_FILE_TYPE;
 
+                Class newoneClass = Class.forName(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getHandlerClass());
+                Assembly assembly = (Assembly) newoneClass.newInstance();
 
                 List<String> list = new ArrayList();
 
                 Map<String, Long> rows = entry.getValue();
 
                 for (String key : rows.keySet()) {
-                    list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                    //list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                    list.add(assembly.execute(dateFormat.format(date), timeFormat.format(date), key, String.valueOf(rows.get(key))));
                 }
 
                 OutputFileUtils.exportToLocal(filePath, list);
             }
-        } catch (ParseException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Export data failed.", e);
         }
     }
 

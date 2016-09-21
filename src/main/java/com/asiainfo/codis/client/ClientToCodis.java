@@ -63,8 +63,8 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
 
             try {
                 return CountRowUtils.mergeData(left.join(), right.join());
-            } catch (ExecutionException | InterruptedException e) {
-                logger.error(e.getMessage());
+            } catch (Exception e) {
+                logger.error("Merge data failed.", e);
                 return result;
             }
         }

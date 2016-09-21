@@ -28,7 +28,7 @@ public class OutputFileEvenQueueImpl extends EventQueue<List<String>>{
         try {
             event = events.take();
         } catch (InterruptedException e) {
-            logger.error(e);
+            logger.error("Unknown error", e);
         }
 
         String fileName = "codis-" + String.valueOf(System.currentTimeMillis()) + StatisticalTablesConf.TABLE_FILE_TYPE;
@@ -47,8 +47,8 @@ public class OutputFileEvenQueueImpl extends EventQueue<List<String>>{
     public boolean produceEvent(List<String> event) {
         try {
             events.put(event);// 向盘子末尾放一个鸡蛋，如果盘子满了，当前线程阻塞
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Unknown error", e);
             return false;
         }
 

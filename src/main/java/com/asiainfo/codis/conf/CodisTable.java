@@ -1,5 +1,7 @@
 package com.asiainfo.codis.conf;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Map;
 
 /**
@@ -11,6 +13,9 @@ public class CodisTable {
     private String where;
     private String dateFormat = "yyyyMMdd";
     private String timeFormat = "yyyyMMddHHmm";
+    private String handlerClass;
+
+    private final String DEFAULT_HANDER_CLASS = "com.asiainfo.codis.action.AssemblyImpl";
 
     public CodisTable(String header, Map<String, Condition> conditions) {
         this.header = header;
@@ -48,4 +53,13 @@ public class CodisTable {
     public String getTimeFormat() {
         return timeFormat;
     }
+
+
+    public String getHandlerClass() {
+        if (StringUtils.isEmpty(handlerClass)){
+            handlerClass = DEFAULT_HANDER_CLASS;
+        }
+        return handlerClass;
+    }
+
 }
