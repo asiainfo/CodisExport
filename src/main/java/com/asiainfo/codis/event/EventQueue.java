@@ -15,6 +15,9 @@ public abstract class EventQueue<T> {
 
     public abstract boolean produceEvent(T events);
 
+    public abstract boolean isCacheEmpty();
+
+    public abstract void flushData();
 
     public int getEventsCounts() {
         return events.size();

@@ -22,6 +22,10 @@ public class EventFactory implements Runnable {
         while (true) {
 
             if (eventQueue.consumeEvent() && StatisticalTablesConf.isAllDone) {
+                if (!eventQueue.isCacheEmpty()){
+                    logger.info("No new event, write last batch");
+                    eventQueue.flushData();
+                }
                 break;
             }
             else {

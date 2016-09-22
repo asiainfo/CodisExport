@@ -95,7 +95,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
             for (Object m : kvList) { // go through every row
                 Map<String, String> allColumnDataMap = (Map<String, String>) m; // a row in codis, the key is col name
 
-                rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]")); //value to a row list
+                //rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]")); //value to a row list
+                rows.add(handleRow(allColumnDataMap));
 
                 for (Map.Entry<String, CodisTable> entry : allTablesSchema.entrySet()) {// go through every table
 
@@ -145,6 +146,7 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 pipeline.close();
 
                 if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
+                    logger.info("Ready to write " + rows.size() + " rows.");
                     eventQueue.produceEvent(rows);
                 }
 
@@ -195,5 +197,29 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
     public void setCodisAddress(String codisAddress) {
         this.codisAddress = codisAddress;
+    }
+
+    private String handleRow(Map<String, String> allColumnDataMap){
+        String hdfsOutputSchema = Conf.getProp().getProperty(Conf.HDFS_OUTPUT_SCHEMA);
+        if (StringUtils.isEmpty(hdfsOutputSchema)){
+            logger.error("Invalid hdfs.output.schema value");
+            return StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]");
+        }
+        else {
+            String[] headers = hdfsOutputSchema.split(",");
+            StringBuilder result = new StringBuilder();
+            for (String header : headers){
+                result.append(allColumnDataMap.get(header.trim()));
+                result.append(",");
+            }
+
+            if(result.length() > 0){
+                return StringUtils.removeEnd(result.toString(), ",");
+            }else {
+                logger.error("No match hdfs.output.schema data");
+                return StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]");
+            }
+
+        }
     }
 }

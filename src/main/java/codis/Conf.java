@@ -47,6 +47,11 @@ public class Conf {
 	public final static String CODIS_EXPORT_INTERVAL_S = "codis.export.interval-s";
 	public final static long DEFAULT_CODIS_EXPORT_INTERVAL_S = 600L;
 
+    public final static String HDFS_OUTPUT_SCHEMA = "hdfs.output.schema";
+
+    public final static String HDFS_OUTPUT_COUNTS_PER_FILE = "hdfs.output.counts-per-file";
+    public final static int DEFAULT_HDFS_OUTPUT_COUNTS_PER_FILE = 2000000;
+
 	private static Logger logger = Logger.getLogger(Conf.class);
 
 
