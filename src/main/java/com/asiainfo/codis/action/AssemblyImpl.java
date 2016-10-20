@@ -16,8 +16,9 @@ public class AssemblyImpl implements Assembly {
                 .append(time)
                 .append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR)
                 .append(col)
-                .append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR)
                 .append(count);
+
+        logger.debug("Result str is <" + result + ">");
         return result.toString();
     }
 }
