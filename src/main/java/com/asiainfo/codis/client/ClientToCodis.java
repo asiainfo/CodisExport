@@ -77,7 +77,9 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
                 return result;
             }
 
-            JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()));
+            JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()),
+                                                Conf.getInt(Conf.JEDIS_TIMEOUT_MS, Conf.DEFAULT_JEDIS_TIMEOUT_MS));
+
             Jedis jedis = jedisPool.getResource();
 
             long startTime=System.currentTimeMillis();
