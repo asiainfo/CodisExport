@@ -6,6 +6,7 @@ import com.asiainfo.codis.util.OutputFileUtils;
 import org.apache.commons.collections.list.CursorableLinkedList;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class OutputFileEvenQueueImpl extends EventQueue<List<String>>{
     public void flushData(){
         long startTime=System.currentTimeMillis();
         String fileName = "codis-" + String.valueOf(System.currentTimeMillis()) + StatisticalTablesConf.TABLE_FILE_TYPE;
-        OutputFileUtils.exportToLocal(fileName, cache);
+        OutputFileUtils.exportToLocal(("source" + File.separator + fileName), cache);
 
         long endLocalTime=System.currentTimeMillis();
         logger.info("Export " + cache.size() + " data to local taking " + (endLocalTime - startTime) + "ms.");

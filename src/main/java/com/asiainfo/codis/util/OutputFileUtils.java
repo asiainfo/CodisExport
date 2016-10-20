@@ -2,6 +2,7 @@ package com.asiainfo.codis.util;
 
 import codis.Conf;
 import com.asiainfo.codis.ExportData;
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -23,8 +24,16 @@ public class OutputFileUtils {
     private static String hdfsOutputPath;
 
     static {
-        String baseDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent().toString();
-        OUT_LOCAL_BASE_DIR = baseDir + File.separator + "tables" + File.separator;
+        String baseDir;
+
+        if (StringUtils.isNotEmpty(Conf.getProp(Conf.CODIS_OUTPUT_BASE_PATH))){
+            baseDir = Conf.getProp(Conf.CODIS_OUTPUT_BASE_PATH);
+        }
+        else {
+            baseDir = Paths.get(ExportData.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent().getParent().toString();
+        }
+
+        OUT_LOCAL_BASE_DIR = baseDir + File.separator ;//+ "tables" + File.separator;
         File out_local_base_dir = new File(OUT_LOCAL_BASE_DIR);
 
         if (!out_local_base_dir.exists()){
@@ -53,7 +62,13 @@ public class OutputFileUtils {
         FileOutputStream outStr ;
         BufferedOutputStream buf = null;
         try {
+            File outputFile = new File(OUT_LOCAL_BASE_DIR + fileName);
+            if (!outputFile.getParentFile().exists()){
+                outputFile.getParentFile().mkdir();
+            }
+
             outStr = new FileOutputStream(new File(OUT_LOCAL_BASE_DIR + fileName));
+
             buf = new BufferedOutputStream(outStr);
             for (String data : datas){
                 buf.write((data + System.getProperty("line.separator", "\n")).getBytes());

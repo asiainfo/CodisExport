@@ -91,7 +91,7 @@ public class ExportData {
 
                 String filePostfix = String.valueOf((currentTimeLong - startTimeLong) / 1000 / Conf.getLong(Conf.CODIS_EXPORT_INTERVAL_S, Conf.DEFAULT_CODIS_EXPORT_INTERVAL_S));
 
-                String filePath = entry.getKey() + "-" + postfixFormat.format(date) + "_" + filePostfix + StatisticalTablesConf.TABLE_FILE_TYPE;
+                String filePath = "result" + File.separator + entry.getKey() + "-" + postfixFormat.format(date) + "_" + filePostfix + StatisticalTablesConf.TABLE_FILE_TYPE;
 
                 Class newoneClass = Class.forName(StatisticalTablesConf.getAllTablesSchema().get(entry.getKey()).getHandlerClass());
                 Assembly assembly = (Assembly) newoneClass.newInstance();
@@ -101,7 +101,7 @@ public class ExportData {
                 Map<String, Long> rows = entry.getValue();
 
                 for (String key : rows.keySet()) {
-                    //list.add(dateFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + timeFormat.format(date) + StatisticalTablesConf.TABLE_COLUMN_SEPARATOR + key + String.valueOf(rows.get(key)));
+                    logger.debug("The header is <" + key + ">");
                     list.add(assembly.execute(dateFormat.format(date), timeFormat.format(date), key, String.valueOf(rows.get(key))));
                 }
 

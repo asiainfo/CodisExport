@@ -52,6 +52,8 @@ public class Conf {
     public final static String HDFS_OUTPUT_COUNTS_PER_FILE = "hdfs.output.counts-per-file";
     public final static int DEFAULT_HDFS_OUTPUT_COUNTS_PER_FILE = 2000000;
 
+	public final static String CODIS_OUTPUT_BASE_PATH = "codis.output.base.path";
+
 	private static Logger logger = Logger.getLogger(Conf.class);
 
 
