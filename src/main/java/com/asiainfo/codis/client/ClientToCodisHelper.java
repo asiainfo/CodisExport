@@ -213,17 +213,19 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
     }
 
     private void handleOtherConditionAvailable(Map<String, Condition> conditions, Map<String, String> allColumnDataMap, Map<String, Boolean> eachAvailability){
-        for(String key : conditions.keySet()){
-            Condition condition = conditions.get(key);
-            if (!condition.getState()){
-                logger.debug("Deal with " + condition);
-                String colValue = allColumnDataMap.get(key);
+        if (conditions != null){
+            for(String key : conditions.keySet()){
+                Condition condition = conditions.get(key);
+                if (!condition.getState()){
+                    logger.debug("Deal with " + condition);
+                    String colValue = allColumnDataMap.get(key);
 
-                if (colValue == null) {
-                    colValue = StatisticalTablesConf.EMPTY_VALUE;
+                    if (colValue == null) {
+                        colValue = StatisticalTablesConf.EMPTY_VALUE;
+                    }
+                    Context context = new Context(condition);
+                    eachAvailability.put(key, context.matches(colValue));//判断每列条件是否满足
                 }
-                Context context = new Context(condition);
-                eachAvailability.put(key, context.matches(colValue));//判断每列条件是否满足
             }
         }
     }
