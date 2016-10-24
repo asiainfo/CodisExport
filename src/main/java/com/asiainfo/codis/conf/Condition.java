@@ -40,6 +40,8 @@ public class Condition{
 
     private String sign = AND;
 
+    //纪录这个条件是否被计算过
+    private boolean state = false;
 
 
     //public abstract boolean matches(String value);
@@ -88,6 +90,14 @@ public class Condition{
         this.sign = sign;
     }
 
+    public boolean getState() {
+        return state;
+    }
+
+    public void setState(boolean state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return "Condition{" +
@@ -101,6 +111,7 @@ public class Condition{
                 ", eq='" + eqString + '\'' +
                 ", notEq='" + notEqString + '\'' +
                 ", sign='" + sign + '\'' +
+                ", state='" + state + '\'' +
                 '}';
     }
 }

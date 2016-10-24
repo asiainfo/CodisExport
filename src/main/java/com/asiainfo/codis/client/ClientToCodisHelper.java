@@ -112,6 +112,8 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
                     Map<String, Boolean> eachAvailability = new HashMap<>();
 
+                    Map<String, Condition> conditions = codisTable.getConditions();
+
                     for (String _header : headers) {
                         String colValue = allColumnDataMap.get(_header);
 
@@ -119,19 +121,20 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                             colValue = StatisticalTablesConf.EMPTY_VALUE;
                         }
 
-                        Map<String, Condition> conditions = codisTable.getConditions();
-
                         Condition condition;
                         if (conditions != null && conditions.containsKey(_header)){
                             condition = conditions.get(_header);
+                            condition.setState(true);
 
                             Context context = new Context(condition);
-                            eachAvailability.put(_header, context.matches(colValue));
-
+                            eachAvailability.put(_header, context.matches(colValue));//判断每列条件是否满足
                         }
+
+                        this.handleOtherConditionAvailable(conditions, allColumnDataMap, eachAvailability);
 
                         targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
                     }
+
 
                     if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
                         count(tableCount, targetRowKey.toString());
@@ -169,30 +172,60 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
         String[] orList = StringUtils.splitByWholeSeparator(where, Condition.OR);
         boolean result = false;
 
-        for (String orCon : orList){
-            if (orCon.contains(Condition.AND)){
-                String[] andList = StringUtils.splitByWholeSeparator(orCon, Condition.AND);
-                boolean isAllTrue = true;
-                for (String andCon : andList){
-                    if (eachAvailability.get(andCon) != null && !eachAvailability.get(andCon)){
-                        isAllTrue = false;
-                        break;
+        boolean allAndResult = true;
+        if (orList.length == 0){
+            for(String key : eachAvailability.keySet()){
+                if (!eachAvailability.get(key)){
+                    allAndResult = false;
+                    break;
+                }
+            }
+
+            result = allAndResult;
+        }
+        else {
+            for (String orCon : orList){
+                if (orCon.contains(Condition.AND)){
+                    String[] andList = StringUtils.splitByWholeSeparator(orCon, Condition.AND);
+                    boolean isAllTrue = true;
+                    for (String andCon : andList){
+                        if (eachAvailability.get(andCon) != null && !eachAvailability.get(andCon)){
+                            isAllTrue = false;
+                            break;
+                        }
                     }
-                }
 
-                if (isAllTrue){
-                    result = true;
-                }
+                    if (isAllTrue){
+                        result = true;
+                    }
 
-            }else {
-                if (eachAvailability.get(orCon) != null && eachAvailability.get(orCon)){
-                    result = true;
-                }
+                }else {
+                    if (eachAvailability.get(orCon) != null && eachAvailability.get(orCon)){
+                        result = true;
+                    }
 
+                }
             }
         }
 
+
         return result;
+    }
+
+    private void handleOtherConditionAvailable(Map<String, Condition> conditions, Map<String, String> allColumnDataMap, Map<String, Boolean> eachAvailability){
+        for(String key : conditions.keySet()){
+            Condition condition = conditions.get(key);
+            if (!condition.getState()){
+                logger.debug("Deal with " + condition);
+                String colValue = allColumnDataMap.get(key);
+
+                if (colValue == null) {
+                    colValue = StatisticalTablesConf.EMPTY_VALUE;
+                }
+                Context context = new Context(condition);
+                eachAvailability.put(key, context.matches(colValue));//判断每列条件是否满足
+            }
+        }
     }
 
     public void setCodisAddress(String codisAddress) {
