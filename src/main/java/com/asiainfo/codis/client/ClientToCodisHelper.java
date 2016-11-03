@@ -71,81 +71,82 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
 
         }
         else {
-
-            long startTime=System.currentTimeMillis();
-            Jedis jedis = jedisPool.getResource();
-            Pipeline pipeline = jedis.pipelined();
-
-
-            for (int i = start; i <= end; i++) {
-                String index = (String) keys[i];
-                pipeline.hgetAll(index);
-            }
-
-            List<Object> kvList = pipeline.syncAndReturnAll();
-
-            long endFromCodisTime = System.currentTimeMillis();
-            logger.info("Get '" + kvList.size() + "' data from codis<" + codisAddress + "> taking " + (endFromCodisTime - startTime) + "ms.");
-            if (kvList == null) {
-                return result;
-            }
-
-            List<String> rows = new ArrayList();
-
-            for (Object m : kvList) { // go through every row
-                Map<String, String> allColumnDataMap = (Map<String, String>) m; // a row in codis, the key is col name
-
-                //rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]")); //value to a row list
-                rows.add(handleRow(allColumnDataMap));
-
-                for (Map.Entry<String, CodisTable> entry : allTablesSchema.entrySet()) {// go through every table
-
-                    StringBuilder targetRowKey = new StringBuilder();
-
-                    String tableName = entry.getKey();
-                    CodisTable codisTable = entry.getValue();
-                    String header = codisTable.getHeader();
-
-                    Map<String, Long> tableCount = result.containsKey(tableName) ? result.get(tableName) : new HashMap();
-
-                    String[] headers = header.split(",");//all table columns
-
-                    Map<String, Boolean> eachAvailability = new HashMap<>();
-
-                    Map<String, Condition> conditions = codisTable.getConditions();
-
-                    for (String _header : headers) {
-                        String colValue = allColumnDataMap.get(_header);
-
-                        if (colValue == null) {
-                            colValue = StatisticalTablesConf.EMPTY_VALUE;
-                        }
-
-                        Condition condition;
-                        if (conditions != null && conditions.containsKey(_header)){
-                            condition = conditions.get(_header);
-                            condition.setState(true);
-
-                            Context context = new Context(condition);
-                            eachAvailability.put(_header, context.matches(colValue));//判断每列条件是否满足
-                        }
-
-                        this.handleOtherConditionAvailable(conditions, allColumnDataMap, eachAvailability);
-
-                        targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
-                    }
-
-
-                    if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
-                        count(tableCount, targetRowKey.toString());
-                    }
-
-                    result.put(tableName, tableCount);
-                }// end of every table
-
-            }//end of a row
-
+            Jedis jedis = null;
             try {
+                long startTime=System.currentTimeMillis();
+                jedis = jedisPool.getResource();
+                Pipeline pipeline = jedis.pipelined();
+
+
+                for (int i = start; i <= end; i++) {
+                    String index = (String) keys[i];
+                    pipeline.hgetAll(index);
+                }
+
+                List<Object> kvList = pipeline.syncAndReturnAll();
+
+                long endFromCodisTime = System.currentTimeMillis();
+                logger.info("Get '" + kvList.size() + "' data from codis<" + codisAddress + "> taking " + (endFromCodisTime - startTime) + "ms.");
+                if (kvList == null) {
+                    return result;
+                }
+
+                List<String> rows = new ArrayList();
+
+                for (Object m : kvList) { // go through every row
+                    Map<String, String> allColumnDataMap = (Map<String, String>) m; // a row in codis, the key is col name
+
+                    //rows.add(StringUtils.remove(StringUtils.remove(allColumnDataMap.values().toString(), "["), "]")); //value to a row list
+                    rows.add(handleRow(allColumnDataMap));
+
+                    for (Map.Entry<String, CodisTable> entry : allTablesSchema.entrySet()) {// go through every table
+
+                        StringBuilder targetRowKey = new StringBuilder();
+
+                        String tableName = entry.getKey();
+                        CodisTable codisTable = entry.getValue();
+                        String header = codisTable.getHeader();
+
+                        Map<String, Long> tableCount = result.containsKey(tableName) ? result.get(tableName) : new HashMap();
+
+                        String[] headers = header.split(",");//all table columns
+
+                        Map<String, Boolean> eachAvailability = new HashMap<>();
+
+                        Map<String, Condition> conditions = codisTable.getConditions();
+
+                        for (String _header : headers) {
+                            String colValue = allColumnDataMap.get(_header);
+
+                            if (colValue == null) {
+                                colValue = StatisticalTablesConf.EMPTY_VALUE;
+                            }
+
+                            Condition condition;
+                            if (conditions != null && conditions.containsKey(_header)){
+                                condition = conditions.get(_header);
+                                condition.setState(true);
+
+                                Context context = new Context(condition);
+                                eachAvailability.put(_header, context.matches(colValue));//判断每列条件是否满足
+                            }
+
+                            this.handleOtherConditionAvailable(conditions, allColumnDataMap, eachAvailability);
+
+                            targetRowKey.append(colValue).append(StatisticalTablesConf.TABLE_COLUMN_SEPARATOR);
+                        }
+
+
+                        if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
+                            count(tableCount, targetRowKey.toString());
+                        }
+
+                        result.put(tableName, tableCount);
+                    }// end of every table
+
+                }//end of a row
+
+
                 pipeline.close();
 
                 if (Conf.getBoolean(Conf.EXPORT_FILE_ENABLE, Conf.DEFAULT_EXPORT_FILE_ENABLE)){
@@ -153,15 +154,17 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                     eventQueue.produceEvent(rows);
                 }
 
+
+                long endTime = System.currentTimeMillis();
+
+                logger.info("Compute data taking " + (endTime - endFromCodisTime) + "ms.");
             } catch (Exception e) {
                 logger.error("Unknown error.", e);
             } finally {
-                jedisPool.returnResource(jedis);
+                if (jedis != null && jedisPool != null){
+                    jedisPool.returnResource(jedis);
+                }
             }
-
-            long endTime = System.currentTimeMillis();
-
-            logger.info("Compute data taking " + (endTime - endFromCodisTime) + "ms.");
 
             logger.debug("Result size : " + result.size());
             return result;

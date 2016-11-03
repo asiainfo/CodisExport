@@ -77,35 +77,41 @@ public class ClientToCodis extends RecursiveTask<Map<String, Map<String, Long>>>
                 return result;
             }
 
-            JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()),
-                                                Conf.getInt(Conf.JEDIS_TIMEOUT_MS, Conf.DEFAULT_JEDIS_TIMEOUT_MS));
+            try {
 
-            Jedis jedis = jedisPool.getResource();
+                JedisPool jedisPool = new JedisPool(config, ip_port[0].trim(), Integer.valueOf(ip_port[1].trim()),
+                        Conf.getInt(Conf.JEDIS_TIMEOUT_MS, Conf.DEFAULT_JEDIS_TIMEOUT_MS));
 
-            long startTime=System.currentTimeMillis();
-            Set<String> set = jedis.keys(Conf.getProp().getProperty(StatisticalTablesConf.CODIS_KEY_PREFIX, StatisticalTablesConf.DEFAULT_CODIS_KEY_PREFIX) + ":*");
-            Object[] keys = set.toArray();
+                Jedis jedis = jedisPool.getResource();
 
-            int keyNum = keys.length;
+                long startTime=System.currentTimeMillis();
+                Set<String> set = jedis.keys(Conf.getProp().getProperty(StatisticalTablesConf.CODIS_KEY_PREFIX, StatisticalTablesConf.DEFAULT_CODIS_KEY_PREFIX) + ":*");
+                Object[] keys = set.toArray();
 
-            long endTime = System.currentTimeMillis();
-            logger.info("Get '" + keyNum + "' keys taking " + (endTime - startTime) + "ms from " + codisHostsInfo[start] + ".");
+                int keyNum = keys.length;
 
-            ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1, eventQueue);
-            clientToCodisHelper.setCodisAddress(codisHostsInfo[start]);
+                long endTime = System.currentTimeMillis();
+                logger.info("Get '" + keyNum + "' keys taking " + (endTime - startTime) + "ms from " + codisHostsInfo[start] + ".");
 
-            //ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
-            ForkJoinTask<Map<String, Map<String, Long>>> finalResult = pool.submit(clientToCodisHelper);
+                ClientToCodisHelper clientToCodisHelper = new ClientToCodisHelper(keys, jedisPool, 0, keyNum-1, eventQueue);
+                clientToCodisHelper.setCodisAddress(codisHostsInfo[start]);
 
-            result = finalResult.join();
+                //ForkJoinPool pool = new ForkJoinPool(Conf.getInt(Conf.CODIS_CLIENT_THREAD_COUNT, Conf.DEFAULT_CODIS_CLIENT_THREAD_COUNT));
+                ForkJoinTask<Map<String, Map<String, Long>>> finalResult = pool.submit(clientToCodisHelper);
+
+                result = finalResult.join();
 
 
-            if (finalResult.getException() != null){
-                logger.error(finalResult.getException());
+                if (finalResult.getException() != null){
+                    logger.error(finalResult.getException());
+                }
+
+
+                jedisPool.close();
             }
-
-
-            jedisPool.close();
+            catch (Exception e){
+                logger.error("Unknown error.", e);
+            }
 
             return result;
 
