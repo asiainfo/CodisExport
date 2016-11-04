@@ -11,6 +11,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RecursiveTask;
@@ -137,8 +138,11 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                         }
 
 
-                        if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
-                            count(tableCount, targetRowKey.toString());
+                        if (isTodayData(allColumnDataMap)){
+                            if (eachAvailability.isEmpty() || this.isAvailableRow(codisTable.getWhere(), eachAvailability)){
+                                count(tableCount, targetRowKey.toString());
+
+                            }
                         }
 
                         result.put(tableName, tableCount);
@@ -231,6 +235,22 @@ public class ClientToCodisHelper extends RecursiveTask<Map<String, Map<String, L
                 }
             }
         }
+    }
+
+    //过滤掉不是当日的数据
+    private boolean isTodayData(Map<String, String> allColumnDataMap){
+        String timestamp = allColumnDataMap.get("timestamp");
+
+        if (StringUtils.isNotEmpty(timestamp)){
+            SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+            String today = df.format(new Date());
+
+            if (StringUtils.trim(timestamp).substring(0, 8).equals(today)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void setCodisAddress(String codisAddress) {
